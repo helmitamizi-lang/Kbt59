@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="mekxz_black">#0F1115</color>
+    <color name="mekxz_charcoal">#1A1D24</color>
+    <color name="mekxz_emerald">#1DB954</color>
+    <color name="mekxz_emerald_dark">#128C3E</color>
+    <color name="mekxz_text_primary">#FFFFFF</color>
+    <color name="mekxz_text_secondary">#A0A0A0</color>
+    <color name="mekxz_glass">#80000000</color>
+</resources>
