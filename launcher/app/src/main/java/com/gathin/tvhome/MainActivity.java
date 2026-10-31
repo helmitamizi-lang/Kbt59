@@ -98,9 +98,11 @@ public class MainActivity extends AppCompatActivity {
     public void updateTopBarUserIcon() {}
     public void showCustomWallpaperManagerDialog() {}
     public boolean isIslamicShelfEnabled() { return false; }
+    public void setIslamicShelfEnabled(boolean enabled) {}
     public void showAyah(Object ayah) {}
     public void updateAyah() {}
     public boolean isWeatherWidgetEnabled() { return true; }
+    public void setWeatherWidgetEnabled(boolean enabled) {}
     public void showSoundEffectsDialog() {}
     public void showAzanSettingsDialog() {}
     public void showGeminiAssistantDialog() {}
