@@ -10,32 +10,62 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static MainActivity sInstance;
     private ImageView btnAllApps;
+    public String testWeatherOverride = null;
+
+    public static MainActivity getInstance() {
+        return sInstance;
+    }
+
+    public static boolean isForeground() {
+        return sInstance != null;
+    }
+
+    public static void openSettingsFromGlobal() {
+        if (sInstance != null) {
+            // Open settings layout or dialog
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sInstance = this;
         
-        // Automotive immersive full screen
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         hideSystemUI();
 
         setContentView(R.layout.activity_main);
-
         setupDock();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (sInstance == this) {
+            sInstance = null;
+        }
     }
 
     private void setupDock() {
         btnAllApps = findViewById(R.id.btnAllApps);
-        btnAllApps.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, AppsActivity.class);
-            startActivity(intent);
-        });
+        if (btnAllApps != null) {
+            btnAllApps.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, AppsActivity.class);
+                startActivity(intent);
+            });
+        }
 
-        // Set up custom dock slots (mock mappings, users will configure via SharedPreferences)
-        findViewById(R.id.dockApp1).setOnClickListener(v -> launchAppByPackage("com.google.android.apps.maps"));
-        findViewById(R.id.dockApp2).setOnClickListener(v -> launchAppByPackage("com.spotify.music"));
+        View dock1 = findViewById(R.id.dockApp1);
+        if (dock1 != null) {
+            dock1.setOnClickListener(v -> launchAppByPackage("com.google.android.apps.maps"));
+        }
+        View dock2 = findViewById(R.id.dockApp2);
+        if (dock2 != null) {
+            dock2.setOnClickListener(v -> launchAppByPackage("com.spotify.music"));
+        }
     }
 
     private void launchAppByPackage(String packageName) {
@@ -58,6 +88,33 @@ public class MainActivity extends AppCompatActivity {
     
     @Override
     public void onBackPressed() {
-        // Do nothing. The Home button/Back button shouldn't exit the launcher.
+        // Prevent launcher from exiting on back press
     }
+
+    // ------------------------------------------------------------------------
+    // COMPATIBILITY STUBS REQUIRED BY TV HOME HELPER CLASSES
+    // ------------------------------------------------------------------------
+    public void reloadTiles() {}
+    public void updateTopBarUserIcon() {}
+    public void showCustomWallpaperManagerDialog() {}
+    public boolean isIslamicShelfEnabled() { return false; }
+    public void showAyah(Object ayah) {}
+    public void updateAyah() {}
+    public boolean isWeatherWidgetEnabled() { return true; }
+    public void showSoundEffectsDialog() {}
+    public void showAzanSettingsDialog() {}
+    public void showGeminiAssistantDialog() {}
+    public void showCleanTvCacheDialog() {}
+    public void showWallpaperDialog() {}
+    public void showWallpaperIntervalDialog() {}
+    public void showLanguageDialog() {}
+    public void updateWeatherOverlay(Object line) {}
+    public void showNightstandScreensaver() {}
+    public void showRestartDialog() {}
+    public void showTurnOffDialog() {}
+    public String getAppVersionName() { return "2.0-MEKXZ"; }
+    public void showAutoUpdateDialog() {}
+    public void setTestWeatherOverride(String cond) { this.testWeatherOverride = cond; }
+    public void refreshLocationDependentData() {}
+    public void updateSettingsBadge() {}
 }
