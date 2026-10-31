@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- MEKXZ DRIVE Main Theme -->
     <style name="Theme.MekxzDrive" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/mekxz_black</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    </style>
+
+    <!-- Legacy style base required by existing layout resources -->
+    <style name="TopButtonBase">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
     </style>
 </resources>
