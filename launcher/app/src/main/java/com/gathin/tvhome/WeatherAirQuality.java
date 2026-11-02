@@ -67,13 +67,21 @@ final class WeatherAirQuality {
         final int maxTemp;
         final int minTemp;
         final int rainChance;
+        final int code;
+        final List<HourlyItem> hourly;
 
         DailyItem(String day, String icon, int maxTemp, int minTemp, int rainChance) {
+            this(day, icon, maxTemp, minTemp, rainChance, 2, new ArrayList<>());
+        }
+
+        DailyItem(String day, String icon, int maxTemp, int minTemp, int rainChance, int code, List<HourlyItem> hourly) {
             this.day = day;
             this.icon = icon;
             this.maxTemp = maxTemp;
             this.minTemp = minTemp;
             this.rainChance = rainChance;
+            this.code = code;
+            this.hourly = hourly != null ? hourly : new ArrayList<>();
         }
     }
 
@@ -100,6 +108,7 @@ final class WeatherAirQuality {
         final String aqiParam;
         final double pm25;
         final double pm10;
+        final int pressure;
         final String updatedTime;
         final List<HourlyItem> hourly;
         final List<DailyItem> daily;
@@ -109,7 +118,7 @@ final class WeatherAirQuality {
                     int highTemp, int lowTemp, int humidity, int windSpeed, int uvIndex,
                     int rainChanceToday, String sunrise, String sunset, int aqi,
                     String aqiStatus, int aqiColor, String aqiParam, double pm25, double pm10,
-                    String updatedTime, List<HourlyItem> hourly, List<DailyItem> daily) {
+                    int pressure, String updatedTime, List<HourlyItem> hourly, List<DailyItem> daily) {
             this.location = location;
             this.stationId = stationId;
             this.stationPlace = stationPlace;
@@ -132,6 +141,7 @@ final class WeatherAirQuality {
             this.aqiParam = aqiParam;
             this.pm25 = pm25;
             this.pm10 = pm10;
+            this.pressure = pressure;
             this.updatedTime = updatedTime;
             this.hourly = hourly;
             this.daily = daily;
@@ -168,7 +178,7 @@ final class WeatherAirQuality {
 
                 // 1. Fetch Complete Weather Forecast (Open-Meteo)
                 String weatherUrl = String.format(Locale.ROOT,
-                        "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max&timezone=Asia%%2FKuala_Lumpur&forecast_days=7",
+                        "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,weather_code,wind_speed_10m,surface_pressure&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max&timezone=Asia%%2FKuala_Lumpur&forecast_days=7",
                         lat, lon);
                 JSONObject wJson = fetchJson(weatherUrl);
 
@@ -178,13 +188,25 @@ final class WeatherAirQuality {
                     JSONObject curr = wJson.getJSONObject("current");
                     temp = (int) Math.round(curr.optDouble("temperature_2m", 29.0));
                     code = curr.optInt("weather_code", 2);
+                    boolean day = curr.optInt("is_day", 1) == 1;
+                    double precip = curr.optDouble("precipitation", 0.0);
+                    double rain = curr.optDouble("rain", 0.0);
+                    // Tropical Calibration: Filter false daytime drizzle when actual rain < 0.5mm
+                    if (day && code >= 51 && code <= 55 && precip < 0.5 && rain < 0.4) {
+                        code = 2; // Partly sunny / Sebahagian Cerah
+                        curr.put("weather_code", code);
+                    }
                 }
 
                 // 2. Fetch Official Air Quality from Jabatan Alam Sekitar Malaysia (APIMS)
                 String jasUrl = "https://eqms.doe.gov.my/api3/publicportalapims/currentapicurrentlocation?stationid=" + stationId;
                 JSONObject jasJson = fetchJson(jasUrl);
 
-                boolean isMalay = Locale.getDefault().getLanguage().startsWith("ms");
+                boolean isMalay = AppLanguage.LANG_MS.equals(AppLanguage.getLanguage(context))
+                || AppLanguage.LANG_ID.equals(AppLanguage.getLanguage(context))
+                || Locale.getDefault().getLanguage().startsWith("ms")
+                || Locale.getDefault().getLanguage().startsWith("in")
+                || Locale.getDefault().getLanguage().startsWith("id");
                 int aqi = 50;
                 String aqiStatus = "Moderate";
                 String aqiParam = "PM2.5";
@@ -257,7 +279,11 @@ final class WeatherAirQuality {
         int code = prefs.getInt(KEY_CODE, 2);
         int aqi = prefs.getInt(KEY_AQI, 50);
 
-        boolean isMalay = Locale.getDefault().getLanguage().startsWith("ms");
+        boolean isMalay = AppLanguage.LANG_MS.equals(AppLanguage.getLanguage(context))
+                || AppLanguage.LANG_ID.equals(AppLanguage.getLanguage(context))
+                || Locale.getDefault().getLanguage().startsWith("ms")
+                || Locale.getDefault().getLanguage().startsWith("in")
+                || Locale.getDefault().getLanguage().startsWith("id");
 
         String icon = getWeatherIcon(code);
         String condition = getWeatherCondition(code, isMalay);
@@ -307,6 +333,7 @@ final class WeatherAirQuality {
         int windSpeed = 8;
         int uvIndex = 6;
         int rainChanceToday = 60;
+        int pressure = 1010;
         String sunrise = "6:54 AM";
         String sunset = "6:58 PM";
 
@@ -322,9 +349,25 @@ final class WeatherAirQuality {
                     temp = (int) Math.round(curr.optDouble("temperature_2m", temp));
                     apparentTemp = (int) Math.round(curr.optDouble("apparent_temperature", apparentTemp));
                     code = curr.optInt("weather_code", code);
+                    boolean day = curr.optInt("is_day", 1) == 1;
+                    double precip = curr.optDouble("precipitation", 0.0);
+                    double rain = curr.optDouble("rain", 0.0);
+                    // Tropical Calibration: Filter false daytime drizzle when actual rain < 0.5mm
+                    if (day && code >= 51 && code <= 55 && precip < 0.5 && rain < 0.4) {
+                        code = 2; // Partly sunny / Sebahagian Cerah
+                    }
                     humidity = (int) Math.round(curr.optDouble("relative_humidity_2m", humidity));
                     windSpeed = (int) Math.round(curr.optDouble("wind_speed_10m", windSpeed));
+                    if (curr.has("surface_pressure")) {
+                        pressure = (int) Math.round(curr.optDouble("surface_pressure", pressure));
+                    }
                 }
+
+                JSONObject hJson = wJson.optJSONObject("hourly");
+                JSONArray hTimes = hJson != null ? hJson.optJSONArray("time") : null;
+                JSONArray hTemps = hJson != null ? hJson.optJSONArray("temperature_2m") : null;
+                JSONArray hRains = hJson != null ? hJson.optJSONArray("precipitation_probability") : null;
+                JSONArray hCodes = hJson != null ? hJson.optJSONArray("weather_code") : null;
 
                 if (wJson.has("daily")) {
                     JSONObject d = wJson.getJSONObject("daily");
@@ -344,44 +387,60 @@ final class WeatherAirQuality {
                     if (sunrises != null && sunrises.length() > 0) sunrise = formatSunTime(sunrises.optString(0, sunrise));
                     if (sunsets != null && sunsets.length() > 0) sunset = formatSunTime(sunsets.optString(0, sunset));
 
-                    // Parse 7 days
+                    // Parse 7 days with their 8-point hourly curves (Google Weather style: every 3h)
                     if (days != null) {
                         int len = Math.min(7, days.length());
                         for (int i = 0; i < len; i++) {
                             String dayStr = days.optString(i, "");
-                            String dayLabel = i == 0 ? "Today" : formatDayName(dayStr);
+                            String dayLabel = i == 0 ? formatTodayLabel(context) : formatDayName(dayStr, context);
                             int c = dailyCodes != null ? dailyCodes.optInt(i, 2) : 2;
                             int mx = maxTemps != null ? (int) Math.round(maxTemps.optDouble(i, 31.0)) : 31;
                             int mn = minTemps != null ? (int) Math.round(minTemps.optDouble(i, 24.0)) : 24;
                             int r = rains != null ? rains.optInt(i, 50) : 50;
-                            daily.add(new DailyItem(dayLabel, getWeatherIcon(c), mx, mn, r));
+
+                            List<HourlyItem> dayHourly = new ArrayList<>();
+                            if (hTimes != null && hTemps != null) {
+                                int dayStartIdx = i * 24;
+                                for (int step = 0; step < 8; step++) {
+                                    int hIdx = dayStartIdx + (step * 3);
+                                    if (hIdx < hTimes.length()) {
+                                        int hour = step * 3;
+                                        String label = formatHourLabel(hour);
+                                        int t = (int) Math.round(hTemps.optDouble(hIdx, 28.0));
+                                        int hc = hCodes != null ? hCodes.optInt(hIdx, c) : c;
+                                        int hr = hRains != null ? hRains.optInt(hIdx, r) : r;
+                                        dayHourly.add(new HourlyItem(label, getWeatherIcon(hc), t, hr));
+                                    }
+                                }
+                            }
+                            if (dayHourly.isEmpty()) {
+                                int[] sampleHours = {0, 3, 6, 9, 12, 15, 18, 21};
+                                for (int hour : sampleHours) {
+                                    int t = (hour >= 12 && hour <= 15) ? mx : (hour < 6 ? mn : (mx + mn) / 2);
+                                    dayHourly.add(new HourlyItem(formatHourLabel(hour), getWeatherIcon(c), t, r));
+                                }
+                            }
+
+                            daily.add(new DailyItem(dayLabel, getWeatherIcon(c), mx, mn, r, c, dayHourly));
                         }
                     }
                 }
 
-                if (wJson.has("hourly")) {
-                    JSONObject h = wJson.getJSONObject("hourly");
-                    JSONArray times = h.optJSONArray("time");
-                    JSONArray temps = h.optJSONArray("temperature_2m");
-                    JSONArray rains = h.optJSONArray("precipitation_probability");
-                    JSONArray codes = h.optJSONArray("weather_code");
-
-                    if (times != null && temps != null) {
-                        Calendar nowCal = Calendar.getInstance();
-                        int currentHour = nowCal.get(Calendar.HOUR_OF_DAY);
-                        int count = 0;
-                        for (int i = 0; i < times.length() && count < 12; i++) {
-                            String tStr = times.optString(i, "");
-                            if (tStr.contains("T")) {
-                                int hour = Integer.parseInt(tStr.substring(tStr.indexOf('T') + 1, tStr.indexOf(':')));
-                                if (count > 0 || hour >= currentHour) {
-                                    String label = count == 0 ? "Now" : formatHourLabel(hour);
-                                    int t = (int) Math.round(temps.optDouble(i, 28.0));
-                                    int c = codes != null ? codes.optInt(i, 2) : 2;
-                                    int r = rains != null ? rains.optInt(i, 30) : 30;
-                                    hourly.add(new HourlyItem(label, getWeatherIcon(c), t, r));
-                                    count++;
-                                }
+                if (hTimes != null && hTemps != null) {
+                    Calendar nowCal = Calendar.getInstance();
+                    int currentHour = nowCal.get(Calendar.HOUR_OF_DAY);
+                    int count = 0;
+                    for (int i = 0; i < hTimes.length() && count < 12; i++) {
+                        String tStr = hTimes.optString(i, "");
+                        if (tStr.contains("T")) {
+                            int hour = Integer.parseInt(tStr.substring(tStr.indexOf('T') + 1, tStr.indexOf(':')));
+                            if (count > 0 || hour >= currentHour) {
+                                String label = count == 0 ? "Now" : formatHourLabel(hour);
+                                int t = (int) Math.round(hTemps.optDouble(i, 28.0));
+                                int c = hCodes != null ? hCodes.optInt(i, 2) : 2;
+                                int r = hRains != null ? hRains.optInt(i, 30) : 30;
+                                hourly.add(new HourlyItem(label, getWeatherIcon(c), t, r));
+                                count++;
                             }
                         }
                     }
@@ -418,7 +477,11 @@ final class WeatherAirQuality {
         double pm25 = aqi * 0.45;
         double pm10 = aqi * 0.55;
 
-        boolean isMalay = Locale.getDefault().getLanguage().startsWith("ms");
+        boolean isMalay = AppLanguage.LANG_MS.equals(AppLanguage.getLanguage(context))
+                || AppLanguage.LANG_ID.equals(AppLanguage.getLanguage(context))
+                || Locale.getDefault().getLanguage().startsWith("ms")
+                || Locale.getDefault().getLanguage().startsWith("in")
+                || Locale.getDefault().getLanguage().startsWith("id");
         if (isMalay) {
             aqiStatus = translateAqiStatus(aqiStatus);
         }
@@ -430,7 +493,8 @@ final class WeatherAirQuality {
         return new FullWeather(locationName, stationId, stationPlace, isJas, temp, apparentTemp,
                 getWeatherCondition(code, isMalay), getWeatherIcon(code),
                 highTemp, lowTemp, humidity, windSpeed, uvIndex, rainChanceToday,
-                sunrise, sunset, aqi, aqiStatus, aqiColor, aqiParam, pm25, pm10, updated, hourly, daily);
+                sunrise, sunset, aqi, aqiStatus, aqiColor, aqiParam, pm25, pm10,
+                pressure, updated, hourly, daily);
     }
 
     private static String translateAqiStatus(String status) {
@@ -459,13 +523,49 @@ final class WeatherAirQuality {
         return "6:54 AM";
     }
 
-    private static String formatDayName(String ymd) {
+    private static String formatTodayLabel(Context context) {
+        boolean isMalay = AppLanguage.LANG_MS.equals(AppLanguage.getLanguage(context))
+                || AppLanguage.LANG_ID.equals(AppLanguage.getLanguage(context))
+                || Locale.getDefault().getLanguage().startsWith("ms")
+                || Locale.getDefault().getLanguage().startsWith("in")
+                || Locale.getDefault().getLanguage().startsWith("id");
+        boolean isPt = Locale.getDefault().getLanguage().startsWith("pt");
+        if (isMalay) return "Hari ini";
+        if (isPt) return "Hoje";
+        return "Today";
+    }
+
+    private static String formatDayName(String ymd, Context context) {
         try {
             SimpleDateFormat inFmt = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
             Date d = inFmt.parse(ymd);
             if (d != null) {
-                SimpleDateFormat outFmt = new SimpleDateFormat("EEE", Locale.getDefault());
-                return outFmt.format(d);
+                boolean isMalay = AppLanguage.LANG_MS.equals(AppLanguage.getLanguage(context))
+                        || AppLanguage.LANG_ID.equals(AppLanguage.getLanguage(context))
+                        || Locale.getDefault().getLanguage().startsWith("ms")
+                        || Locale.getDefault().getLanguage().startsWith("in")
+                        || Locale.getDefault().getLanguage().startsWith("id");
+
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(d);
+                int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+                if (isMalay) {
+                    switch (dayOfWeek) {
+                        case Calendar.SUNDAY: return "Ahad";
+                        case Calendar.MONDAY: return "Isnin";
+                        case Calendar.TUESDAY: return "Selasa";
+                        case Calendar.WEDNESDAY: return "Rabu";
+                        case Calendar.THURSDAY: return "Khamis";
+                        case Calendar.FRIDAY: return "Jumaat";
+                        case Calendar.SATURDAY: return "Sabtu";
+                    }
+                }
+
+                SimpleDateFormat outFmt = new SimpleDateFormat("EEEE", Locale.getDefault());
+                String name = outFmt.format(d);
+                if (name != null && name.length() > 0) {
+                    return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+                }
             }
         } catch (Exception ignored) {
         }
@@ -483,8 +583,9 @@ final class WeatherAirQuality {
             case 0:
                 return isMalay ? "Cerah" : "Clear sky";
             case 1:
+                return isMalay ? "Cerah Berawan" : "Mainly clear";
             case 2:
-                return isMalay ? "Sebahagian Cerah" : "Partly cloudy";
+                return isMalay ? "Sebahagiannya mendung" : "Mostly cloudy";
             case 3:
                 return isMalay ? "Mendung" : "Overcast";
             case 45:
@@ -493,7 +594,9 @@ final class WeatherAirQuality {
             case 51:
             case 53:
             case 55:
-                return isMalay ? "Hujan Renyai" : "Light drizzle";
+            case 56:
+            case 57:
+                return isMalay ? "Gerimis" : "Drizzle";
             case 61:
             case 63:
             case 65:

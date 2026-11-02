@@ -1,22 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- MEKXZ DRIVE Main Theme -->
-    <style name="Theme.MekxzDrive" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="android:windowBackground">@color/mekxz_black</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    <style name="Theme.TvHome" parent="android:Theme.Material.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:colorBackground">@android:color/black</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <!-- No black placeholder while Home starts from scratch: what was on screen stays until Home
+             can show itself whole, then Home appears at once. The placeholder was black for most
+             of a second and then faded out over Home for another third of one. -->
+        <item name="android:windowDisablePreview">true</item>
     </style>
 
-    <!-- Legacy Style Aliases for TV UI Components -->
-    <style name="Theme.TvHome.GlassDialog" parent="Theme.MaterialComponents.Dialog">
-        <item name="android:windowBackground">@color/mekxz_glass</item>
+    <style name="Theme.TvHome.Translucent" parent="android:Theme.Material.NoActionBar.Fullscreen">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:windowDisablePreview">true</item>
     </style>
 
+    <style name="Theme.TvHome.AzanCard" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Toast</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.TvHome.GlassDialog" parent="android:Theme.Material.Dialog.NoActionBar">
+        <item name="android:windowBackground">@drawable/bg_glass_dialog</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.70</item>
+        <item name="android:textColor">#FFFFFFFF</item>
+        <item name="android:textColorPrimary">#FFFFFFFF</item>
+        <item name="android:textColorSecondary">#F0FFFFFF</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:windowTitleStyle">@style/GlassDialogTitle</item>
+        <item name="android:textAppearanceMedium">@style/GlassDialogMessage</item>
+        <item name="android:buttonBarStyle">@style/GlassDialogButtonBar</item>
+        <item name="android:buttonBarButtonStyle">@style/GlassDialogButton</item>
+    </style>
+
+    <style name="GlassDialogTitle" parent="android:Widget.Material.TextView">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">#FFFFFFFF</item>
+        <item name="android:shadowColor">#DD000000</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">2</item>
+        <item name="android:shadowRadius">4</item>
+    </style>
+
+    <style name="GlassDialogMessage" parent="android:Widget.Material.TextView">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">#F0FFFFFF</item>
+        <item name="android:lineSpacingMultiplier">1.3</item>
+        <item name="android:shadowColor">#CC000000</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">3</item>
+    </style>
+
+    <style name="GlassDialogButtonBar" parent="android:Widget.Material.ButtonBar">
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+    </style>
+
+    <style name="GlassDialogButton" parent="android:Widget.Material.Button.Borderless">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">#FFFFFFFF</item>
+        <item name="android:shadowColor">#99000000</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">2</item>
+    </style>
+
+    <!-- Frosted pill, tvOS style. -->
     <style name="TopButtonBase">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">42dp</item>
+        <item name="android:layout_marginStart">10dp</item>
+        <item name="android:paddingStart">13.5dp</item>
+        <item name="android:paddingEnd">13.5dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/pill_bg</item>
+        <item name="android:textColor">@drawable/pill_text</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:drawablePadding">7dp</item>
+        <item name="android:drawableTint">@drawable/pill_text</item>
+        <item name="android:shadowColor">#99000000</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">4</item>
         <item name="android:focusable">true</item>
         <item name="android:clickable">true</item>
+    </style>
+    <style name="TopButton" parent="TopButtonBase" />
+    <!-- The top menu's pills (Inputs, Settings): bright text and icon in every state, because their
+         focus is the gliding dark shape (Glider) rather than a white fill. -->
+    <style name="TopMenuButton" parent="TopButton">
+        <item name="android:textColor">@drawable/top_text</item>
+        <item name="android:drawableTint">@drawable/top_text</item>
     </style>
 </resources>

@@ -1,7 +1,7 @@
 {
-  "versionCode": 40,
-  "versionName": "4.0.0",
+  "versionCode": 45,
+  "versionName": "4.1.0",
   "apkUrl": "https://github.com/aqmangge/glass-tv-home/raw/main/release/glass-tv-home.apk",
-  "changelog": "🚀 Glass TV v4.0: Tipografi universal Inter merentasi seluruh sistem, butang avatar haiwan pengguna aktif di bar atas, enjin adaptasi kendiri 1080p & 4K UHD, pelayan muat naik wallpaper fail-safe automatik, dan tetapan pengunci Default Home Launcher.",
-  "releaseDate": "2026-10-31"
+  "changelog": "✨ Glass TV v4.1.0 (Khutbah Minbar Tempatan, Pemilih Mod Paparan & Navigasi DPAD):\n• Khutbah Minbar Mingguan: Penyelarasan automatik teks khutbah Jumaat mengikut zon & negeri (JAWI Putrajaya/KL, JAIS Selangor, JAINJ Johor, MUIS Singapura, Kemenag RI Indonesia, dll.) melalui minbar.gosolat.com dan islam.nu.or.id berserta pangkalan data luar talian (offline fallback).\n• Pilihan Paparan Skrin Utama: Pilihan pantas di Tetapan Moden untuk beralih antara 'Doa Harian (Ayat Al-Quran & Terjemahan)' dan 'Teks Minbar (Khutbah Jumaat)'.\n• Dialog Perincian Kaca (Frosted Glass Detail Modal): Memaparkan teks penuh khutbah, tema, sumber rasmi dan butang tukar mod pantas bila ditekan OK pada remote TV.\n• Navigasi DPAD Remote Sempurna: Aliran navigasi berarah dua hala antara Dock aplikasi bawah <-> Rak Ayah/Minbar (dengan bingkai cahaya cyan bercahaya) <-> Bar Kawalan Atas (Tetapan).\n• Profil Pengguna & Avatar Animasi: Sistem penyesuaian profil pelbagai pengguna, avatar animasi Lottie, carian GIF Tenor, dan pelayan muat naik gambar telefon pintar tempatan (LAN HTTP Server).",
+  "releaseDate": "2026-11-02"
 }

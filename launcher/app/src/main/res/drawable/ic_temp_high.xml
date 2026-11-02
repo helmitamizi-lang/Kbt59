@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="14dp"
+    android:height="18dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Outer Glass Tube with Bulb (padded inside 24x24) -->
+    <path
+        android:pathData="M12,3 C10.9,3 10,3.9 10,5 L10,13.2 C8.8,14.1 8,15.5 8,17 C8,19.2 9.8,21 12,21 C14.2,21 16,19.2 16,17 C16,15.5 15.2,14.1 14,13.2 L14,5 C14,3.9 13.1,3 12,3 Z"
+        android:strokeWidth="1.6"
+        android:strokeColor="#FFFFFF"
+        android:fillColor="#00000000" />
+    <!-- High Mercury Column (filled to top) -->
+    <path
+        android:pathData="M12,16 L12,7"
+        android:strokeWidth="2.4"
+        android:strokeLineCap="round"
+        android:strokeColor="#FF4D4D" />
+    <!-- Filled Mercury Bulb -->
+    <path
+        android:pathData="M12,17m-2.4,0a2.4,2.4 0 1,0 4.8,0a2.4,2.4 0 1,0 -4.8,0"
+        android:fillColor="#FF4D4D" />
+</vector>
