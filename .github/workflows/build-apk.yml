@@ -6,11 +6,13 @@ on:
       - main
       - mekxz-drive
       - mekxz-drive-x
+      - drive-x-visual-rebuild
   pull_request:
     branches:
       - main
       - mekxz-drive
       - mekxz-drive-x
+      - drive-x-visual-rebuild
 
 jobs:
   build:
