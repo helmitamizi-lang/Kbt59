@@ -51,6 +51,11 @@ public final class DriveXThemeStudioActivity extends Activity {
             cb.setChecked(prefs.getBoolean(widget[1],true));cb.setOnCheckedChangeListener((v,checked)->prefs.edit().putBoolean(widget[1],checked).apply());
             controls.addView(cb);
         }
+        heading("Car Visual Studio");
+        seekFloat("Car image zoom", "car_zoom",65,250,100);
+        seekSigned("Car horizontal position","car_shift_x", -160,160,0);
+        seekSigned("Car vertical position","car_shift_y",-120,120,0);
+        subtitle("Pilih gambar kereta melalui Settings pada homescreen. Zoom dan posisi disimpan secara automatik.");
         heading("Homescreen");
         button("Buka widget editor",()->{prefs.edit().putBoolean("edit_layout",true).apply();finish();});
         button("Restore Factory Theme",()->new AlertDialog.Builder(this).setTitle("Restore Factory Theme?")
@@ -73,6 +78,22 @@ public final class DriveXThemeStudioActivity extends Activity {
             public void onStartTrackingTouch(SeekBar b){}
             public void onStopTrackingTouch(SeekBar b){}
         });controls.addView(b);
+    }
+    private void seekFloat(String name,String key,int min,int max,int def){
+        TextView t=new TextView(this);t.setTextColor(-1);controls.addView(t);
+        SeekBar bar=new SeekBar(this);bar.setMax(max-min);bar.setProgress(Math.round(prefs.getFloat(key,def/100f)*100)-min);
+        bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            public void onProgressChanged(SeekBar b,int n,boolean user){float value=(min+n)/100f;t.setText(name+" • "+String.format(Locale.US,"%.2fx",value));if(user)prefs.edit().putFloat(key,value).apply();}
+            public void onStartTrackingTouch(SeekBar b){}public void onStopTrackingTouch(SeekBar b){}
+        });controls.addView(bar);t.setText(name+" • "+prefs.getFloat(key,def/100f)+"x");
+    }
+    private void seekSigned(String name,String key,int min,int max,int def){
+        TextView t=new TextView(this);t.setTextColor(-1);controls.addView(t);
+        SeekBar bar=new SeekBar(this);bar.setMax(max-min);bar.setProgress(Math.round(prefs.getFloat(key,def))-min);
+        bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            public void onProgressChanged(SeekBar b,int n,boolean user){int value=min+n;t.setText(name+" • "+value);if(user)prefs.edit().putFloat(key,value).apply();}
+            public void onStartTrackingTouch(SeekBar b){}public void onStopTrackingTouch(SeekBar b){}
+        });controls.addView(bar);t.setText(name+" • "+prefs.getFloat(key,def));
     }
     private void set(String k,String v){prefs.edit().putString(k,v).apply();preview.invalidate();}
     private final class Preview extends View{
