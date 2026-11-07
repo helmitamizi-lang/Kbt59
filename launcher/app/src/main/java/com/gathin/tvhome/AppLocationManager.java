@@ -22,13 +22,13 @@ public class AppLocationManager {
     public static final String KEY_LATITUDE = "latitude";
     public static final String KEY_LONGITUDE = "longitude";
 
-    // Defaults to Malaysia (Putrajaya DOE CA17W)
+    // Drive X default if GPS is unavailable: Kulim, Kedah.
     public static final String DEFAULT_REGION = "Malaysia";
-    public static final String DEFAULT_STATION_ID = "CA17W";
-    public static final String DEFAULT_LOCATION_NAME = "Putrajaya";
-    public static final String DEFAULT_STATION_PLACE = "SK Putrajaya Presint 18 (2)";
-    public static final double DEFAULT_LATITUDE = 2.9158;
-    public static final double DEFAULT_LONGITUDE = 101.6909;
+    public static final String DEFAULT_STATION_ID = "KULIM";
+    public static final String DEFAULT_LOCATION_NAME = "Kulim";
+    public static final String DEFAULT_STATION_PLACE = "Kulim, Kedah";
+    public static final double DEFAULT_LATITUDE = 5.364;
+    public static final double DEFAULT_LONGITUDE = 100.561;
 
     public static class Station {
         public final String id;
