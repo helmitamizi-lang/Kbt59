@@ -363,22 +363,24 @@ public final class DriveXActivity extends Activity implements LocationListener, 
         }
         private void panel(Canvas c,RectF r,float radius){
             int glass=prefs.getInt("glass",65),dark=prefs.getInt("darkness",95);
-            int top=Color.argb(Math.min(255,glass*255/100),Math.max(8,60-dark/2),Math.max(8,60-dark/2),Math.max(8,64-dark/2));
-            int bottom=Color.argb(Math.min(255,glass*255/100),7,7,8);
+            int top=Color.argb(Math.min(245,115+glass),42,43,47);
+            int bottom=Color.argb(Math.min(240,95+glass),12,12,15);
             fill(top);p.setShader(new LinearGradient(r.left,r.top,r.left,r.bottom,top,bottom,Shader.TileMode.CLAMP));
-            float rad=prefs.getInt("radius",18);c.drawRoundRect(r,rad,rad,p);p.setShader(null);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(1.3f+prefs.getInt("glow",65)/100f);p.setColor(themeAccent());c.drawRoundRect(r,rad,rad,p);p.setStyle(Paint.Style.FILL);
+            float rad=prefs.getInt("radius",18);c.drawRoundRect(r,rad,rad,p);p.setShader(null);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(1.3f+prefs.getInt("glow",65)/100f);p.setColor(0xff6b6d72);c.drawRoundRect(r,rad,rad,p);p.setStyle(Paint.Style.FILL);
+            fill(0x30ffffff);c.drawRoundRect(new RectF(r.left+11,r.top+2,r.right-11,r.top+3.5f),2,2,p);
         }
         private void circle(Canvas c,float x,float y,float rad,int color){fill(color);c.drawCircle(x,y,rad,p);}
         private int themeAccent(){String a=prefs.getString("accent","red");switch(a){case "silver":return 0xffdddddd;case "amber":return 0xffefb24b;case "purple":return 0xffa98af0;case "green":return 0xff60dba3;default:return RED;}}
         @Override protected void onDraw(Canvas canvas){
             super.onDraw(canvas);scaleX=getWidth()/1024f;scaleY=getHeight()/600f;canvas.save();canvas.scale(scaleX,scaleY);
-            canvas.drawColor(0xff030304);
-            fill(0xffededee);p.setStrokeWidth(1);canvas.drawLine(0,50,1024,50,p);
-            text(canvas,"MEKXZ DRIVE",24,35,27,WHITE,true);text(canvas,"X",223,35,30,RED,true);
-            text(canvas,"ANDROID CAR LAUNCHER  |  SMART COCKPIT",300,31,13,DIM,false);
+            canvas.drawColor(0xff030303);
+            fill(0xff101012);p.setShader(new android.graphics.RadialGradient(570,260,460,new int[]{0xff202024,0xff09090b,0xff030303},null,Shader.TileMode.CLAMP));canvas.drawRect(0,0,1024,600,p);p.setShader(null);
+            fill(0xff46464a);p.setStrokeWidth(1);canvas.drawLine(20,51,1004,51,p);
+            text(canvas,"MEKXZ DRIVE",24,35,27,WHITE,true);text(canvas,"X",223,35,30,themeAccent(),true);
+            text(canvas,"TOYOTA VIOS  •  SMART COCKPIT",350,31,12,0xff929298,false);
             text(canvas,new SimpleDateFormat("HH:mm",Locale.forLanguageTag("ms-MY")).format(new Date()),908,36,23,WHITE,true);
             RectF sidebar=new RectF(10,60,105,588);panel(canvas,sidebar,17);
-            String[] nav={"⌂","➤","♫","▦","⚙"};String[] sub={"Home","Nav","Media","Apps","Settings"};
+            String[] nav={"⌂","➤","♫","▦","⚙"};String[] sub={"HOME","NAV","MEDIA","APPS","SET"};
             for(int i=0;i<5;i++){float y=114+i*92;
                 if(i==0){RectF r=new RectF(20,y-30,95,y+40);panel(canvas,r,14);}
                 text(canvas,nav[i],44,y+6,31,WHITE,true);text(canvas,sub[i],29,y+29,13,DIM,false);
@@ -396,13 +398,14 @@ public final class DriveXActivity extends Activity implements LocationListener, 
             canvas.restore();
         }
         private void drawSpeed(Canvas c,RectF r){
-            panel(c,r,20);float cx=r.centerX(),cy=r.top+150,rad=Math.min(135,r.width()/2-7);
-            fill(0xff050506);c.drawCircle(cx,cy,rad,p);
-            p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(9);p.setColor(0xff7f8186);c.drawArc(cx-rad+10,cy-rad+10,cx+rad-10,cy+rad-10,135,270,false,p);
+            panel(c,r,20);float cx=r.centerX(),cy=r.top+148,rad=Math.min(129,r.width()/2-13);
+            fill(0xff080809);c.drawCircle(cx,cy,rad,p);
+            p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(2);p.setColor(0xffd0d0d4);c.drawCircle(cx,cy,rad-3,p);p.setStyle(Paint.Style.FILL);
+            p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(9);p.setColor(0xff3d3d42);c.drawArc(cx-rad+10,cy-rad+10,cx+rad-10,cy+rad-10,135,270,false,p);
             p.setStrokeWidth(3);p.setColor(themeAccent());c.drawArc(cx-rad+10,cy-rad+10,cx+rad-10,cy+rad-10,290,48,false,p);
             for(int i=0;i<=26;i++){double a=Math.toRadians(135+i*270/26.0);
                 float x1=cx+(rad-18)*(float)Math.cos(a),y1=cy+(rad-18)*(float)Math.sin(a),x2=cx+(rad-(i%2==0?35:27))*(float)Math.cos(a),y2=cy+(rad-(i%2==0?35:27))*(float)Math.sin(a);
-                p.setColor(i>=22?RED:WHITE);p.setStrokeWidth(i%2==0?2:1);c.drawLine(x1,y1,x2,y2,p);
+                p.setColor(i>=22?themeAccent():WHITE);p.setStrokeWidth(i%2==0?2:1);c.drawLine(x1,y1,x2,y2,p);
             }
             p.setStyle(Paint.Style.FILL);
             if("digital".equals(prefs.getString("gauge","rs"))){
@@ -413,8 +416,9 @@ public final class DriveXActivity extends Activity implements LocationListener, 
                 text(c,"GPS SPEED",cx-49,cy-50,14,DIM,false);text(c,String.valueOf(hasGps?(int)Math.round(speedKmh):0),cx-35,cy+28,66,WHITE,true);
             }
             text(c,"km/h",cx-26,cy+54,16,DIM,false);
-            text(c,status,r.left+18,r.bottom-38,14,WHITE,false);
-            text(c,"TOYOTA • VIOS RS",r.left+18,r.bottom-14,16,themeAccent(),true);
+            text(c,"0",cx-90,cy+87,13,DIM,false);text(c,"260",cx+59,cy+87,13,DIM,false);
+            text(c,status.length()>32?status.substring(0,32):status,r.left+18,r.bottom-38,12,DIM,false);
+            text(c,"TOYOTA • VIOS RS",r.left+18,r.bottom-14,16,0xffdddddf,true);
         }
         private void drawCar(Canvas c,RectF r){
             panel(c,r,20);
@@ -424,13 +428,21 @@ public final class DriveXActivity extends Activity implements LocationListener, 
                 c.save();Path path=new Path();path.addRoundRect(r,20,20,Path.Direction.CW);c.clipPath(path);
                 c.drawBitmap(carBitmap,src,r,p);c.restore();
             }else{
-                fill(0xff060608);c.drawRoundRect(new RectF(r.left+10,r.top+10,r.right-10,r.bottom-10),14,14,p);
-                text(c,"TOYOTA",r.left+22,r.top+58,22,DIM,true);
-                text(c,"VIOS RS",r.left+22,r.top+94,37,WHITE,true);
-                text(c,"KBT 59",r.left+22,r.top+126,20,themeAccent(),true);
-                text(c,"Pilih gambar kereta dalam Settings",r.left+22,r.bottom-25,13,DIM,false);
+                drawCarPlaceholder(c,r);
             }
             text(c,"◉",r.right-33,r.bottom-17,23,themeAccent(),false);
+        }
+        private void drawCarPlaceholder(Canvas c,RectF r){
+            fill(0xff101114);c.drawRoundRect(new RectF(r.left+8,r.top+8,r.right-8,r.bottom-8),17,17,p);
+            float x=r.left+30,y=r.top+90,w=r.width()-60;
+            Path silhouette=new Path();silhouette.moveTo(x,y+57);silhouette.lineTo(x+25,y+38);silhouette.lineTo(x+w*.27f,y+32);silhouette.lineTo(x+w*.40f,y+2);silhouette.lineTo(x+w*.73f,y+2);silhouette.lineTo(x+w*.86f,y+35);silhouette.lineTo(x+w-7,y+43);silhouette.lineTo(x+w,y+61);silhouette.close();
+            fill(0xff3a3d44);c.drawPath(silhouette,p);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(2);p.setColor(0xffb2b4ba);c.drawPath(silhouette,p);p.setStyle(Paint.Style.FILL);
+            fill(0xff0d1015);c.drawRoundRect(new RectF(x+w*.43f,y+7,x+w*.70f,y+30),5,5,p);
+            circle(c,x+w*.23f,y+60,20,0xff0b0b0d);circle(c,x+w*.78f,y+60,20,0xff0b0b0d);
+            circle(c,x+w*.23f,y+60,11,0xffb9bac1);circle(c,x+w*.78f,y+60,11,0xffb9bac1);
+            text(c,"TOYOTA VIOS RS",r.left+20,r.top+33,19,WHITE,true);
+            text(c,"KBT 59",r.left+20,r.top+54,15,0xffc3c3c8,false);
+            text(c,"Import gambar Vios dalam Settings",r.left+20,r.bottom-19,12,DIM,false);
         }
         private void drawPrayer(Canvas c,RectF r){
             panel(c,r,20);text(c,"WAKTU SOLAT",r.left+19,r.top+34,22,WHITE,true);
@@ -450,25 +462,26 @@ public final class DriveXActivity extends Activity implements LocationListener, 
         private void drawMedia(Canvas c,RectF r){
             panel(c,r,20);
             NowPlayingManager.MediaInfo m=NowPlayingManager.getCurrentInfo();
-            RectF art=new RectF(r.left+12,r.top+13,r.left+102,r.bottom-12);
+            RectF art=new RectF(r.left+12,r.top+13,r.left+110,r.top+111);
             if(m!=null&&m.albumArt!=null){
                 c.save();Path clip=new Path();clip.addRoundRect(art,12,12,Path.Direction.CW);c.clipPath(clip);
                 fill(-1);c.drawBitmap(m.albumArt,null,art,p);c.restore();
             }else{
-                fill(0xff232326);c.drawRoundRect(art,10,10,p);text(c,"♫",art.left+25,art.centerY()+15,42,WHITE,true);
+                fill(0xff323237);p.setShader(new LinearGradient(art.left,art.top,art.right,art.bottom,0xff52525b,0xff17171a,Shader.TileMode.CLAMP));c.drawRoundRect(art,10,10,p);p.setShader(null);text(c,"♫",art.left+28,art.centerY()+13,42,WHITE,true);
             }
-            String title=m!=null&&!m.title.isEmpty()?m.title:"Tiada media aktif";
-            String artist=m!=null&&!m.artist.isEmpty()?m.artist:"Mainkan lagu / radio untuk metadata";
+            String title=m!=null&&!m.title.isEmpty()?m.title:"READY TO PLAY";
+            String artist=m!=null&&!m.artist.isEmpty()?m.artist:"Music • Radio • Local";
             if(showLyrics && !lyrics.isEmpty()){
                 String line=lyrics.get(0);try{long pos=m!=null&&m.controller!=null&&m.controller.getPlaybackState()!=null?m.controller.getPlaybackState().getPosition():0;
                     for(int i=0;i<lyrics.size();i++)if(pos>=lyricMillis.get(i))line=lyrics.get(i);}catch(Exception ignored){}
                 title=line;artist="LYRIC MODE • .LRC";
             }
             if(title.length()>28)title=title.substring(0,27)+"…";if(artist.length()>38)artist=artist.substring(0,37)+"…";
-            text(c,title,r.left+119,r.top+37,19,WHITE,true);text(c,artist,r.left+119,r.top+58,13,DIM,false);
-            text(c,"◀◀",r.left+136,r.bottom-23,22,WHITE,true);
-            text(c,m!=null&&m.isPlaying?"Ⅱ":"▶",r.left+207,r.bottom-23,26,WHITE,true);
-            text(c,"▶▶",r.left+268,r.bottom-23,22,WHITE,true);
+            text(c,title,r.left+122,r.top+36,19,WHITE,true);text(c,artist,r.left+122,r.top+59,13,DIM,false);
+            fill(0xff54545a);c.drawRoundRect(new RectF(r.left+124,r.bottom-48,r.right-20,r.bottom-45),2,2,p);
+            text(c,"◀◀",r.left+136,r.bottom-17,22,WHITE,true);
+            text(c,m!=null&&m.isPlaying?"Ⅱ":"▶",r.left+207,r.bottom-17,26,WHITE,true);
+            text(c,"▶▶",r.left+268,r.bottom-17,22,WHITE,true);
         }
         private void drawWeather(Canvas c,RectF r){
             panel(c,r,16);text(c,"☀",r.left+18,r.top+36,28,WHITE,true);
@@ -486,7 +499,7 @@ public final class DriveXActivity extends Activity implements LocationListener, 
                 String pkg=prefs.getString("dock_"+i,pkgs[i]);Drawable icon=null;
                 try{icon=getPackageManager().getApplicationIcon(pkg);}catch(Exception ignored){}
                 if(icon!=null){c.save();icon.setBounds((int)x+19,531,(int)x+58,569);icon.draw(c);c.restore();}
-                else text(c,names[i].substring(0,1),x+28,562,31,WHITE,true);
+                else {fill(0xff34343a);c.drawRoundRect(new RectF(x+19,531,x+58,569),10,10,p);text(c,names[i].substring(0,1),x+30,559,23,WHITE,true);}
                 String label=names[i];try{label=getPackageManager().getApplicationLabel(getPackageManager().getApplicationInfo(pkg,0)).toString();}catch(Exception ignored){}
                 if(label.length()>11)label=label.substring(0,10)+"…";text(c,label,x+13,585,12,WHITE,false);
             }
