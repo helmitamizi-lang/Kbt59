@@ -6,11 +6,11 @@ on:
       - main
       - mekxz-drive
       - mekxz-drive-x
-      - mekxz-drive-x
   pull_request:
     branches:
       - main
       - mekxz-drive
+      - mekxz-drive-x
 
 jobs:
   build:
