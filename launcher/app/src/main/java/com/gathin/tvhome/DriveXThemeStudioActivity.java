@@ -45,6 +45,12 @@ public final class DriveXThemeStudioActivity extends Activity {
         seek("Background darkness", "darkness",65,100,95);
         heading("Speedometer skin");
         for(String[] a:new String[][]{{"AMG RS Analog","rs"},{"AMG Digital","digital"},{"Minimal","minimal"},{"Classic","classic"},{"Performance","performance"}})button(a[0],()->set("gauge",a[1]));
+        heading("Widget visibility");
+        for(String[] widget:new String[][]{{"GPS speedometer","show_speed"},{"Gambar kereta","show_car"},{"Waktu solat","show_prayer"},{"Media player","show_media"},{"Cuaca","show_weather"}}){
+            CheckBox cb=new CheckBox(this);cb.setText(widget[0]);cb.setTextColor(-1);
+            cb.setChecked(prefs.getBoolean(widget[1],true));cb.setOnCheckedChangeListener((v,checked)->prefs.edit().putBoolean(widget[1],checked).apply());
+            controls.addView(cb);
+        }
         heading("Homescreen");
         button("Buka widget editor",()->{prefs.edit().putBoolean("edit_layout",true).apply();finish();});
         button("Restore Factory Theme",()->new AlertDialog.Builder(this).setTitle("Restore Factory Theme?")
