@@ -339,6 +339,10 @@ final class PrayerTimes {
         PRESET_ZONES.add(new PrayerZone("PRK01", "Perak", "Tapah, Slim River, Tanjung Malim", 3.6800, 101.5200));
 
         // Kedah & Perlis
+        PRESET_ZONES.add(new PrayerZone("KDH03", "Kedah", "Padang Terap, Sik", 6.10, 100.74));
+        PRESET_ZONES.add(new PrayerZone("KDH04", "Kedah", "Baling", 5.68, 100.92));
+        PRESET_ZONES.add(new PrayerZone("KDH05", "Kedah", "Bandar Baharu, Kulim", 5.364, 100.561));
+        PRESET_ZONES.add(new PrayerZone("KDH06", "Kedah", "Langkawi", 6.3316, 99.8585));
         PRESET_ZONES.add(new PrayerZone("KDH01", "Kedah", "Kota Setar, Pokok Sena, Kubang Pasu", 6.1371, 100.3469));
         PRESET_ZONES.add(new PrayerZone("KDH02", "Kedah", "Kuala Muda, Yan, Pendang, Sungai Petani", 5.6297, 100.4677));
         PRESET_ZONES.add(new PrayerZone("KDH07", "Kedah", "Pulau Langkawi", 6.3316, 99.8585));
@@ -508,6 +512,7 @@ final class PrayerTimes {
         if (loc.contains("pinang") || loc.contains("seberang") || loc.contains("minden")) return "PNG01";
         if (loc.contains("ipoh") || loc.contains("tasek") || loc.contains("taiping")) return "PRK02";
         if (loc.contains("manjung")) return "PRK01";
+        if (loc.contains("kulim") || loc.contains("bandar baharu") || loc.contains("lunas") || loc.contains("padang serai") || stationId.equals("KULIM")) return "KDH05";
         if (loc.contains("alor setar")) return "KDH01";
         if (loc.contains("sungai petani")) return "KDH02";
         if (loc.contains("langkawi")) return "KDH07";
@@ -524,7 +529,7 @@ final class PrayerTimes {
         if (loc.contains("bintulu")) return "SWK06";
         if (loc.contains("sibu")) return "SWK05";
 
-        return "WLY01"; // Default Putrajaya
+        return "KDH05"; // Drive X fallback: Bandar Baharu / Kulim
     }
 
     static class PrayerItem {

@@ -62,7 +62,7 @@ public final class NowPlayingManager {
         }
 
         public boolean hasMusic() {
-            return isPlaying && isAllowedMusicApp(packageName);
+            return isPlaying && (isAllowedMusicApp(packageName) || controller != null);
         }
 
         public String getDisplayText() {
@@ -191,7 +191,7 @@ public final class NowPlayingManager {
                     if (controllers != null && !controllers.isEmpty()) {
                         // Priority 1: Actively playing controller from Spotify or YouTube Music
                         for (MediaController mc : controllers) {
-                            if (mc == null || !isAllowedMusicApp(mc.getPackageName())) continue;
+                            if (mc == null) continue;
                             PlaybackState state = mc.getPlaybackState();
                             if (state != null && state.getState() == PlaybackState.STATE_PLAYING) {
                                 activeController = mc;
@@ -201,7 +201,7 @@ public final class NowPlayingManager {
                         // Priority 2: Paused/Buffering controller from Spotify or YouTube Music
                         if (activeController == null) {
                             for (MediaController mc : controllers) {
-                                if (mc == null || !isAllowedMusicApp(mc.getPackageName())) continue;
+                                if (mc == null) continue;
                                 PlaybackState state = mc.getPlaybackState();
                                 if (state != null && (state.getState() == PlaybackState.STATE_PAUSED
                                         || state.getState() == PlaybackState.STATE_BUFFERING
@@ -355,7 +355,7 @@ public final class NowPlayingManager {
             // Strictly check if music is active in Spotify or YouTube Music
             if (activeController == null && title.isEmpty()) {
                 currentInfo = new MediaInfo(false, "", "", "", "", null, null);
-            } else if (!isAllowedMusicApp(pkg)) {
+            } else if (!isAllowedMusicApp(pkg) && activeController == null) {
                 currentInfo = new MediaInfo(false, "", "", "", "", null, null);
             } else {
                 String appName = getAppName(context, pkg);
