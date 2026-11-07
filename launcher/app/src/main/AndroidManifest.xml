@@ -74,6 +74,7 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".DriveXThemeStudioActivity" android:exported="false" android:screenOrientation="landscape" android:theme="@style/Theme.TvHome" />
         <activity
             android:name=".DriveXActivity"
             android:exported="true"
