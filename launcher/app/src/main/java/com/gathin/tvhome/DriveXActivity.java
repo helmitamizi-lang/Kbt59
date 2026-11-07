@@ -426,7 +426,13 @@ public final class DriveXActivity extends Activity implements LocationListener, 
                 p.setFilterBitmap(true);fill(-1);
                 Rect src=new Rect(0,0,carBitmap.getWidth(),carBitmap.getHeight());
                 c.save();Path path=new Path();path.addRoundRect(r,20,20,Path.Direction.CW);c.clipPath(path);
-                c.drawBitmap(carBitmap,src,r,p);c.restore();
+                float zoom=Math.max(0.65f,Math.min(2.5f,prefs.getFloat("car_zoom",1f)));
+                float aspect=(float)carBitmap.getWidth()/Math.max(1,carBitmap.getHeight());
+                float targetW=r.width()*zoom,targetH=targetW/aspect;
+                if(targetH<r.height()*zoom){targetH=r.height()*zoom;targetW=targetH*aspect;}
+                float shiftX=prefs.getFloat("car_shift_x",0f),shiftY=prefs.getFloat("car_shift_y",0f);
+                RectF dest=new RectF(r.centerX()-targetW/2+shiftX,r.centerY()-targetH/2+shiftY,r.centerX()+targetW/2+shiftX,r.centerY()+targetH/2+shiftY);
+                c.drawBitmap(carBitmap,src,dest,p);c.restore();
             }else{
                 drawCarPlaceholder(c,r);
             }
@@ -489,6 +495,18 @@ public final class DriveXActivity extends Activity implements LocationListener, 
             text(c,weather.length()>25?weather.substring(0,25):weather,r.left+67,r.top+30,18,WHITE,true);
             text(c,loc,r.left+68,r.top+50,13,DIM,false);
         }
+        private void drawDockSymbol(Canvas c,String name,float cx,float cy){
+            p.setColor(0xfff4f4f6);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(2.5f);
+            if("Maps".equals(name)||"Waze".equals(name)){
+                c.drawCircle(cx,cy-5,8,p);c.drawLine(cx-5,cy+1,cx,cy+13,p);c.drawLine(cx+5,cy+1,cx,cy+13,p);
+            }else if("YouTube".equals(name)){
+                c.drawRoundRect(new RectF(cx-13,cy-9,cx+13,cy+9),6,6,p);Path triangle=new Path();triangle.moveTo(cx-3,cy-5);triangle.lineTo(cx+6,cy);triangle.lineTo(cx-3,cy+5);triangle.close();p.setStyle(Paint.Style.FILL);c.drawPath(triangle,p);
+            }else if("Spotify".equals(name)||"Radio".equals(name)){
+                c.drawArc(cx-12,cy-10,cx+12,cy+10,210,120,false,p);c.drawArc(cx-9,cy-5,cx+9,cy+8,210,120,false,p);
+            }else if("Netflix".equals(name)){
+                c.drawLine(cx-8,cy-12,cx-8,cy+12,p);c.drawLine(cx+8,cy-12,cx+8,cy+12,p);c.drawLine(cx-8,cy-12,cx+8,cy+12,p);
+            }p.setStyle(Paint.Style.FILL);
+        }
         private void drawDock(Canvas c){
             RectF r=new RectF(120,520,1016,594);panel(c,r,17);
             String[] pkgs={"com.google.android.apps.maps","com.waze","com.google.android.youtube","com.spotify.music","com.netflix.mediaclient","com.android.fmradio"};
@@ -499,7 +517,7 @@ public final class DriveXActivity extends Activity implements LocationListener, 
                 String pkg=prefs.getString("dock_"+i,pkgs[i]);Drawable icon=null;
                 try{icon=getPackageManager().getApplicationIcon(pkg);}catch(Exception ignored){}
                 if(icon!=null){c.save();icon.setBounds((int)x+19,531,(int)x+58,569);icon.draw(c);c.restore();}
-                else {fill(0xff34343a);c.drawRoundRect(new RectF(x+19,531,x+58,569),10,10,p);text(c,names[i].substring(0,1),x+30,559,23,WHITE,true);}
+                else {fill(0xff34343a);c.drawRoundRect(new RectF(x+19,531,x+58,569),10,10,p);drawDockSymbol(c,names[i],x+38,550);}
                 String label=names[i];try{label=getPackageManager().getApplicationLabel(getPackageManager().getApplicationInfo(pkg,0)).toString();}catch(Exception ignored){}
                 if(label.length()>11)label=label.substring(0,10)+"…";text(c,label,x+13,585,12,WHITE,false);
             }
