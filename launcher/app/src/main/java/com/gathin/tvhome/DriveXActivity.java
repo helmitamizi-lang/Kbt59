@@ -120,7 +120,7 @@ public final class DriveXActivity extends Activity implements LocationListener, 
         getWindow().getDecorView().setSystemUiVisibility(5894 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
     }
     @Override public void onWindowFocusChanged(boolean focus){super.onWindowFocusChanged(focus);if(focus)immersive();}
-    @Override public void onResume() {super.onResume();startGps(); if(dashboard!=null)dashboard.invalidate();}
+    @Override public void onResume() {super.onResume();startGps();editMode=prefs.getBoolean("edit_layout",false);if(dashboard!=null)dashboard.invalidate();}
     @Override public void onPause() {super.onPause();stopGps();}
     @Override public void onDestroy() {
         handler.removeCallbacks(ticker);stopGps();NowPlayingManager.unregisterListener(this);
@@ -229,9 +229,11 @@ public final class DriveXActivity extends Activity implements LocationListener, 
         }
     }
     private void openSettings(){
-        String[] actions={"Ubah gambar kereta","Gaya meter GPS","Edit susunan widget","Warna accent","Bunyi navigasi PS5","Azan & notification","Zon solat / lokasi","Aktifkan GPS","Web remote iPhone","Import lirik .LRC","Lyrics mode","Screensaver","Off-screen (dim)","Voice greeting","Semua apps","Launcher TV asal"};
+        String[] actions={"Theme Studio","Ubah gambar kereta","Gaya meter GPS","Edit susunan widget","Warna accent","Bunyi navigasi PS5","Azan & notification","Zon solat / lokasi","Aktifkan GPS","Web remote iPhone","Import lirik .LRC","Lyrics mode","Screensaver","Off-screen (dim)","Voice greeting","Semua apps","Launcher TV asal"};
         new AlertDialog.Builder(this).setTitle("MEKXZ DRIVE X • Settings").setItems(actions,(d,which)->{
             SoundEffects.playSelect();
+            if(which==0){startActivity(new Intent(this,DriveXThemeStudioActivity.class));return;}
+            which--;
             switch(which){
                 case 0:pickPhoto();break;
                 case 1:options("Gaya speedometer",new String[]{"RS Analog","Digital Minimal"}, "gauge",new String[]{"rs","digital"});break;
@@ -347,10 +349,14 @@ public final class DriveXActivity extends Activity implements LocationListener, 
             fill(color);p.setTypeface(bold?android.graphics.Typeface.create("sans-serif",1):android.graphics.Typeface.create("sans-serif",0));p.setTextSize(sz);c.drawText(s,x,y,p);
         }
         private void panel(Canvas c,RectF r,float radius){
-            fill(0xff131315);p.setShader(new LinearGradient(r.left,r.top,r.left,r.bottom,0xff222225,0xff080809,Shader.TileMode.CLAMP));
-            c.drawRoundRect(r,radius,radius,p);p.setShader(null);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(1.3f);p.setColor(0xff88898d);c.drawRoundRect(r,radius,radius,p);p.setStyle(Paint.Style.FILL);
+            int glass=prefs.getInt("glass",65),dark=prefs.getInt("darkness",95);
+            int top=Color.argb(Math.min(255,glass*255/100),Math.max(8,60-dark/2),Math.max(8,60-dark/2),Math.max(8,64-dark/2));
+            int bottom=Color.argb(Math.min(255,glass*255/100),7,7,8);
+            fill(top);p.setShader(new LinearGradient(r.left,r.top,r.left,r.bottom,top,bottom,Shader.TileMode.CLAMP));
+            float rad=prefs.getInt("radius",18);c.drawRoundRect(r,rad,rad,p);p.setShader(null);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(1.3f+prefs.getInt("glow",65)/100f);p.setColor(themeAccent());c.drawRoundRect(r,rad,rad,p);p.setStyle(Paint.Style.FILL);
         }
         private void circle(Canvas c,float x,float y,float rad,int color){fill(color);c.drawCircle(x,y,rad,p);}
+        private int themeAccent(){String a=prefs.getString("accent","red");switch(a){case "silver":return 0xffdddddd;case "amber":return 0xffefb24b;case "purple":return 0xffa98af0;case "green":return 0xff60dba3;default:return RED;}}
         @Override protected void onDraw(Canvas canvas){
             super.onDraw(canvas);scaleX=getWidth()/1024f;scaleY=getHeight()/600f;canvas.save();canvas.scale(scaleX,scaleY);
             canvas.drawColor(0xff030304);
@@ -364,7 +370,11 @@ public final class DriveXActivity extends Activity implements LocationListener, 
                 if(i==0){RectF r=new RectF(20,y-30,95,y+40);panel(canvas,r,14);}
                 text(canvas,nav[i],44,y+6,31,WHITE,true);text(canvas,sub[i],29,y+29,13,DIM,false);
             }
-            drawSpeed(canvas,boxes[0]);drawCar(canvas,boxes[1]);drawPrayer(canvas,boxes[2]);drawMedia(canvas,boxes[3]);drawWeather(canvas,boxes[4]);drawDock(canvas);
+            if(prefs.getBoolean("show_speed",true))drawSpeed(canvas,boxes[0]);
+            if(prefs.getBoolean("show_car",true))drawCar(canvas,boxes[1]);
+            if(prefs.getBoolean("show_prayer",true))drawPrayer(canvas,boxes[2]);
+            if(prefs.getBoolean("show_media",true))drawMedia(canvas,boxes[3]);
+            if(prefs.getBoolean("show_weather",true))drawWeather(canvas,boxes[4]);drawDock(canvas);
             if(editMode){text(canvas,"EDIT LAYOUT • tekan lama, seret, lepaskan untuk simpan",140,510,15,0xffe5e5e5,true);}
             if(screenDimmed){fill(0xff000000);canvas.drawRect(0,0,1024,600,p);text(canvas,"Sentuh untuk hidupkan skrin",335,300,22,WHITE,true);}
             else if(screensaver){fill(0xff000000);canvas.drawRect(0,0,1024,600,p);
@@ -376,7 +386,7 @@ public final class DriveXActivity extends Activity implements LocationListener, 
             panel(c,r,20);float cx=r.centerX(),cy=r.top+150,rad=Math.min(135,r.width()/2-7);
             fill(0xff050506);c.drawCircle(cx,cy,rad,p);
             p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(9);p.setColor(0xff7f8186);c.drawArc(cx-rad+10,cy-rad+10,cx+rad-10,cy+rad-10,135,270,false,p);
-            p.setStrokeWidth(3);p.setColor(RED);c.drawArc(cx-rad+10,cy-rad+10,cx+rad-10,cy+rad-10,290,48,false,p);
+            p.setStrokeWidth(3);p.setColor(themeAccent());c.drawArc(cx-rad+10,cy-rad+10,cx+rad-10,cy+rad-10,290,48,false,p);
             for(int i=0;i<=26;i++){double a=Math.toRadians(135+i*270/26.0);
                 float x1=cx+(rad-18)*(float)Math.cos(a),y1=cy+(rad-18)*(float)Math.sin(a),x2=cx+(rad-(i%2==0?35:27))*(float)Math.cos(a),y2=cy+(rad-(i%2==0?35:27))*(float)Math.sin(a);
                 p.setColor(i>=22?RED:WHITE);p.setStrokeWidth(i%2==0?2:1);c.drawLine(x1,y1,x2,y2,p);
@@ -386,12 +396,12 @@ public final class DriveXActivity extends Activity implements LocationListener, 
                 text(c,"GPS DIGITAL",cx-68,cy-60,15,DIM,true);text(c,String.valueOf(hasGps?(int)Math.round(speedKmh):0),cx-55,cy+28,79,WHITE,true);
             }else{
                 double a=Math.toRadians(135+Math.min(260,speedKmh)/260*270);
-                p.setColor(RED);p.setStrokeWidth(3.4f);c.drawLine(cx,cy,cx+(rad-48)*(float)Math.cos(a),cy+(rad-48)*(float)Math.sin(a),p);
+                p.setColor(themeAccent());p.setStrokeWidth(3.4f);c.drawLine(cx,cy,cx+(rad-48)*(float)Math.cos(a),cy+(rad-48)*(float)Math.sin(a),p);
                 text(c,"GPS SPEED",cx-49,cy-50,14,DIM,false);text(c,String.valueOf(hasGps?(int)Math.round(speedKmh):0),cx-35,cy+28,66,WHITE,true);
             }
             text(c,"km/h",cx-26,cy+54,16,DIM,false);
             text(c,status,r.left+18,r.bottom-38,14,WHITE,false);
-            text(c,"TOYOTA • VIOS RS",r.left+18,r.bottom-14,16,RED,true);
+            text(c,"TOYOTA • VIOS RS",r.left+18,r.bottom-14,16,themeAccent(),true);
         }
         private void drawCar(Canvas c,RectF r){
             panel(c,r,20);
@@ -404,10 +414,10 @@ public final class DriveXActivity extends Activity implements LocationListener, 
                 fill(0xff060608);c.drawRoundRect(new RectF(r.left+10,r.top+10,r.right-10,r.bottom-10),14,14,p);
                 text(c,"TOYOTA",r.left+22,r.top+58,22,DIM,true);
                 text(c,"VIOS RS",r.left+22,r.top+94,37,WHITE,true);
-                text(c,"KBT 59",r.left+22,r.top+126,20,RED,true);
+                text(c,"KBT 59",r.left+22,r.top+126,20,themeAccent(),true);
                 text(c,"Pilih gambar kereta dalam Settings",r.left+22,r.bottom-25,13,DIM,false);
             }
-            text(c,"◉",r.right-33,r.bottom-17,23,RED,false);
+            text(c,"◉",r.right-33,r.bottom-17,23,themeAccent(),false);
         }
         private void drawPrayer(Canvas c,RectF r){
             panel(c,r,20);text(c,"WAKTU SOLAT",r.left+19,r.top+34,22,WHITE,true);
