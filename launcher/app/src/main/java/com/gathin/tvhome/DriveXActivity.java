@@ -83,7 +83,7 @@ public final class DriveXActivity extends Activity implements LocationListener, 
         for (int i=0;i<boxes.length;i++) {
             RectF r=boxes[i]; float w=r.width(),h=r.height();
             float x=prefs.getFloat(ids[i]+"_x",r.left), y=prefs.getFloat(ids[i]+"_y",r.top);
-            r.set(x,y,x+w,y+h);
+            r.set(x,y,x+prefs.getFloat(ids[i]+"_w",w),y+prefs.getFloat(ids[i]+"_h",h));
         }
         immersive();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -229,11 +229,12 @@ public final class DriveXActivity extends Activity implements LocationListener, 
         }
     }
     private void openSettings(){
-        String[] actions={"Theme Studio","Ubah gambar kereta","Gaya meter GPS","Edit susunan widget","Warna accent","Bunyi navigasi PS5","Azan & notification","Zon solat / lokasi","Aktifkan GPS","Web remote iPhone","Import lirik .LRC","Lyrics mode","Screensaver","Off-screen (dim)","Voice greeting","Semua apps","Launcher TV asal"};
+        String[] actions={"Theme Studio","Resize widget","Ubah gambar kereta","Gaya meter GPS","Edit susunan widget","Warna accent","Bunyi navigasi PS5","Azan & notification","Zon solat / lokasi","Aktifkan GPS","Web remote iPhone","Import lirik .LRC","Lyrics mode","Screensaver","Off-screen (dim)","Voice greeting","Semua apps","Launcher TV asal"};
         new AlertDialog.Builder(this).setTitle("MEKXZ DRIVE X • Settings").setItems(actions,(d,which)->{
             SoundEffects.playSelect();
             if(which==0){startActivity(new Intent(this,DriveXThemeStudioActivity.class));return;}
-            which--;
+            if(which==1){widgetSizePicker();return;}
+            which-=2;
             switch(which){
                 case 0:pickPhoto();break;
                 case 1:options("Gaya speedometer",new String[]{"RS Analog","Digital Minimal"}, "gauge",new String[]{"rs","digital"});break;
@@ -260,6 +261,18 @@ public final class DriveXActivity extends Activity implements LocationListener, 
             if("sound".equals(key))SoundEffects.setTheme(this,values[i]);
             if("screensaver".equals(key))prefs.edit().putInt("screensaver_after","off".equals(values[i])?Integer.MAX_VALUE:("10".equals(values[i])?600:300)).apply();
             dashboard.invalidate();
+        }).show();
+    }
+    private void widgetSizePicker(){
+        String[] labels={"GPS speedometer","Kereta","Waktu solat","Media player","Cuaca"};
+        new AlertDialog.Builder(this).setTitle("Resize widget").setItems(labels,(d,i)->{
+            new AlertDialog.Builder(this).setTitle(labels[i]).setItems(new String[]{"Kecil (80%)","Normal (100%)","Besar (120%)","Lebar (140%)"},(d2,n)->{
+                float[] baseW={275,334,252,328,326},baseH={320,231,349,129,51};
+                float wx=n==0?.8f:n==3?1.4f:n==2?1.2f:1f;
+                float hy=n==0?.8f:n==2?1.2f:1f;
+                RectF r=boxes[i];r.right=Math.min(1018,r.left+baseW[i]*wx);r.bottom=Math.min(510,r.top+baseH[i]*hy);
+                prefs.edit().putFloat(ids[i]+"_w",r.width()).putFloat(ids[i]+"_h",r.height()).apply();dashboard.invalidate();
+            }).show();
         }).show();
     }
     private void showZonePicker(){
@@ -487,7 +500,7 @@ public final class DriveXActivity extends Activity implements LocationListener, 
                 for(int i=boxes.length-1;i>=0;i--)if(boxes[i].contains(x,y)){hit=i;grabX=x-boxes[i].left;grabY=y-boxes[i].top;break;}
                 return true;
             }else if(ev.getAction()==MotionEvent.ACTION_MOVE){
-                if(hit>=0 && (editMode||SystemClock.elapsedRealtime()-downAt>600) && Math.hypot(x-downX,y-downY)>8){
+                if(hit>=0 && editMode && Math.hypot(x-downX,y-downY)>8){
                     dragging=true;RectF b=boxes[hit];b.offsetTo(Math.max(108,Math.min(1018-b.width(),x-grabX)),Math.max(55,Math.min(511-b.height(),y-grabY)));invalidate();
                 }
                 return true;
