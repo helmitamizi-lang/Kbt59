@@ -52,7 +52,7 @@
             </LinearLayout>
             <LinearLayout android:layout_width="0dp" android:layout_height="match_parent"
                 android:layout_weight="1" android:gravity="right" android:orientation="vertical">
-                <LinearLayout android:layout_width="230dp" android:layout_height="0dp"
+                <LinearLayout android:layout_width="270dp" android:layout_height="0dp"
                     android:layout_weight="1" android:background="@drawable/bg_frosted_glass"
                     android:padding="14dp" android:orientation="vertical">
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -70,24 +70,50 @@
                         android:textColor="#FFFFFF" android:checked="false"/>
                 </LinearLayout>
                 <Space android:layout_width="1dp" android:layout_height="14dp"/>
-                <LinearLayout android:layout_width="match_parent" android:layout_height="120dp"
+                <LinearLayout android:layout_width="match_parent" android:layout_height="144dp"
                     android:background="@drawable/bg_frosted_glass" android:padding="12dp"
                     android:orientation="vertical">
-                    <TextView android:id="@+id/mediaTitle" android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="Tiada media dimainkan"
-                        android:textSize="16sp" android:textColor="#FFFFFF" android:singleLine="true"
-                        android:ellipsize="end"/>
-                    <TextView android:id="@+id/mediaArtist" android:layout_width="match_parent"
-                        android:layout_height="wrap_content" android:text="Buka aplikasi muzik"
-                        android:textSize="13sp" android:textColor="#CCFFFFFF"/>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="0dp"
-                        android:layout_weight="1" android:gravity="center" android:orientation="horizontal">
-                        <Button android:id="@+id/mediaPrevious" android:layout_width="64dp"
-                            android:layout_height="48dp" android:text="◀◀"/>
-                        <Button android:id="@+id/mediaPlayPause" android:layout_width="64dp"
-                            android:layout_height="48dp" android:text="▶"/>
-                        <Button android:id="@+id/mediaNext" android:layout_width="64dp"
-                            android:layout_height="48dp" android:text="▶▶"/>
+                        android:layout_weight="1" android:gravity="center_vertical" android:orientation="horizontal">
+                        <FrameLayout android:layout_width="64dp" android:layout_height="64dp"
+                            android:background="@drawable/bg_media_artwork">
+                            <ImageView android:id="@+id/mediaArtwork" android:layout_width="match_parent"
+                                android:layout_height="match_parent" android:padding="10dp"
+                                android:src="@android:drawable/ic_media_play" android:scaleType="centerInside"
+                                android:contentDescription="Album artwork"/>
+                        </FrameLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_weight="1"
+                            android:layout_height="wrap_content" android:layout_marginStart="12dp"
+                            android:orientation="vertical">
+                            <TextView android:text="NOW PLAYING" android:layout_width="match_parent"
+                                android:layout_height="wrap_content" android:textColor="#8DB6D5"
+                                android:textStyle="bold" android:textSize="10sp"/>
+                            <TextView android:id="@+id/mediaTitle" android:layout_width="match_parent"
+                                android:layout_height="wrap_content" android:text="Tiada media dimainkan"
+                                android:textStyle="bold" android:textSize="16sp" android:textColor="#FFFFFF"
+                                android:singleLine="true" android:ellipsize="end"/>
+                            <TextView android:id="@+id/mediaArtist" android:layout_width="match_parent"
+                                android:layout_height="wrap_content" android:text="Buka aplikasi muzik"
+                                android:textSize="12sp" android:textColor="#BBFFFFFF"
+                                android:singleLine="true" android:ellipsize="end"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="52dp"
+                        android:gravity="center" android:orientation="horizontal">
+                        <ImageButton android:id="@+id/mediaPrevious" android:layout_width="52dp"
+                            android:layout_height="48dp" android:layout_marginEnd="12dp"
+                            android:src="@android:drawable/ic_media_previous" android:tint="#EAF5FF"
+                            android:background="@drawable/bg_media_control"
+                            android:contentDescription="Previous track"/>
+                        <ImageButton android:id="@+id/mediaPlayPause" android:layout_width="58dp"
+                            android:layout_height="50dp" android:layout_marginEnd="12dp"
+                            android:src="@android:drawable/ic_media_play" android:tint="#FFFFFF"
+                            android:background="@drawable/bg_media_play"
+                            android:contentDescription="Play or pause"/>
+                        <ImageButton android:id="@+id/mediaNext" android:layout_width="52dp"
+                            android:layout_height="48dp" android:src="@android:drawable/ic_media_next"
+                            android:tint="#EAF5FF" android:background="@drawable/bg_media_control"
+                            android:contentDescription="Next track"/>
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
