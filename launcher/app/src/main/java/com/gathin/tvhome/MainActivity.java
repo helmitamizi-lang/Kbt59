@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private View btnAllApps;
     private static final int PICK_WALLPAPER = 501;
     private TextView mediaTitle, mediaArtist;
+    private HeadUnitRemote remote;
     public String testWeatherOverride = null;
 
     public static MainActivity getInstance() {
@@ -54,17 +55,59 @@ public class MainActivity extends AppCompatActivity {
         loadWallpaper();
         setupMedia();
         TextView prayer = findViewById(R.id.prayerText);
-        prayer.setText("Waktu solat belum disambungkan\\nSila semak jadual dalam Settings");
+        prayer.setText("Memuat waktu solat…");
         Switch azan = findViewById(R.id.azanSwitch);
-        azan.setEnabled(false); // Avoid pretending azan scheduling is active.
+        azan.setChecked(Azan.isMasterEnabled(this));
+        azan.setOnCheckedChangeListener((button, enabled) -> {
+            Azan.setMasterEnabled(this, enabled);
+            Azan.schedule(this, PrayerTimes.getJakimZone(this));
+        });
+        refreshPrayers();
+        PrayerTimes.syncIfDue(this, this::refreshPrayers);
+        remote = new HeadUnitRemote(this);
+        remote.start();
     }
 
     @Override
     protected void onDestroy() {
+        if (remote != null) remote.stop();
         super.onDestroy();
         if (sInstance == this) {
             sInstance = null;
         }
+    }
+
+    private void refreshPrayers() {
+        PrayerTimes.Day day = PrayerTimes.day(this, PrayerTimes.getJakimZone(this), java.util.Calendar.getInstance());
+        TextView prayer = findViewById(R.id.prayerText);
+        if (day == null) {
+            prayer.setText("Jadual tidak tersedia");
+            return;
+        }
+        int[] indices = {0, 2, 3, 4, 5};
+        StringBuilder text = new StringBuilder();
+        for (int index : indices) {
+            int m = day.minutes[index];
+            text.append(PrayerTimes.NAMES[index]).append("     ")
+                .append(String.format(java.util.Locale.US, "%02d:%02d", m / 60, m % 60))
+                .append("\\n");
+        }
+        prayer.setText(text.toString().trim());
+        Azan.schedule(this, PrayerTimes.getJakimZone(this));
+    }
+
+    public void remoteAction(String command) {
+        runOnUiThread(() -> {
+            switch (command) {
+                case "home": break;
+                case "apps": startActivity(new Intent(this, AppsActivity.class)); break;
+                case "settings": startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS)); break;
+                case "previous": mediaAction(0); break;
+                case "play": mediaAction(1); break;
+                case "next": mediaAction(2); break;
+                default: break;
+            }
+        });
     }
 
     private void setupDock() {
@@ -179,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
     // ------------------------------------------------------------------------
     public void reloadTiles() {}
     public void updateTopBarUserIcon() {}
-    public void showCustomWallpaperManagerDialog() {}
+    public void showCustomWallpaperManagerDialog() { pickWallpaper(); }
     public boolean isIslamicShelfEnabled() { return false; }
     public void setIslamicShelfEnabled(boolean enabled) {}
     public void showAyah(Object ayah) {}
@@ -187,10 +230,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean isWeatherWidgetEnabled() { return true; }
     public void setWeatherWidgetEnabled(boolean enabled) {}
     public void showSoundEffectsDialog() {}
-    public void showAzanSettingsDialog() {}
+    public void showAzanSettingsDialog() { refreshPrayers(); }
     public void showGeminiAssistantDialog() {}
     public void showCleanTvCacheDialog() {}
-    public void showWallpaperDialog() {}
+    public void showWallpaperDialog() { pickWallpaper(); }
     public void showWallpaperIntervalDialog() {}
     public void showLanguageDialog() {}
     public void updateWeatherOverlay(Object line) {}
