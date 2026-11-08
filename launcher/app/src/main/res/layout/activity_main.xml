@@ -1,204 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/mekxz_black"
-    android:padding="16dp">
-
-    <!-- TOP BAR -->
-    <TextClock
-        android:id="@+id/clockWidget"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:format12Hour="hh:mm a"
-        android:format24Hour="HH:mm"
-        android:textColor="@color/mekxz_text_primary"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextClock
-        android:id="@+id/dateWidget"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:format12Hour="EEEE, MMMM dd"
-        android:format24Hour="EEEE, MMMM dd"
-        android:textColor="@color/mekxz_emerald"
-        android:textSize="16sp"
-        android:layout_marginStart="16dp"
-        app:layout_constraintBottom_toBottomOf="@id/clockWidget"
-        app:layout_constraintStart_toEndOf="@id/clockWidget"
-        app:layout_constraintTop_toTopOf="@id/clockWidget" />
-
-    <!-- WIDGET DASHBOARD -->
-    <LinearLayout
-        android:id="@+id/widgetContainer"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="horizontal"
-        android:weightSum="3"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="24dp"
-        app:layout_constraintTop_toBottomOf="@id/clockWidget"
-        app:layout_constraintBottom_toTopOf="@id/dockContainer">
-
-        <!-- WEATHER & LOCATION -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/bg_frosted_glass"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="16dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="32°C"
-                android:textColor="@color/mekxz_text_primary"
-                android:textSize="48sp"
-                android:textStyle="bold"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Kuala Lumpur"
-                android:textColor="@color/mekxz_text_secondary"
-                android:textSize="18sp"/>
-        </LinearLayout>
-
-        <!-- PRAYER TIMES -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:background="@drawable/bg_frosted_glass"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="16dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="MAGHRIB"
-                android:textColor="@color/mekxz_emerald"
-                android:textSize="24sp"
-                android:textStyle="bold"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="19:24"
-                android:textColor="@color/mekxz_text_primary"
-                android:textSize="36sp"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="-00:45:12 to next"
-                android:textColor="@color/mekxz_text_secondary"
-                android:textSize="14sp"/>
-        </LinearLayout>
-
-        <!-- MEDIA PLAYER -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:background="@drawable/bg_frosted_glass"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="16dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="No Media Playing"
-                android:textColor="@color/mekxz_text_primary"
-                android:textSize="18sp"
-                android:textAlignment="center"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
-                <!-- Replace with icons later -->
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="@color/mekxz_charcoal"
-                    android:text="Prev" />
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="@color/mekxz_emerald"
-                    android:layout_marginHorizontal="8dp"
-                    android:text="Play" />
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="@color/mekxz_charcoal"
-                    android:text="Next" />
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="#080F19">
+    <ImageView android:id="@+id/homeWallpaper" android:layout_width="match_parent"
+        android:layout_height="match_parent" android:scaleType="centerCrop"
+        android:contentDescription="Wallpaper" />
+    <View android:layout_width="match_parent" android:layout_height="match_parent"
+        android:background="#33030B14"/>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+        android:padding="16dp" android:orientation="vertical">
+        <TextView android:layout_width="wrap_content" android:layout_height="38dp"
+            android:text="MEKXZ DRIVE  X" android:textStyle="bold" android:textColor="#FFFFFFFF"
+            android:textSize="24sp"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="0dp"
+            android:layout_weight="1" android:orientation="horizontal">
+            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent"
+                android:layout_weight="1" android:orientation="vertical">
+                <TextClock android:id="@+id/clockWidget" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:format24Hour="HH:mm"
+                    android:format12Hour="hh:mm" android:textSize="66sp" android:textStyle="bold"
+                    android:textColor="#FFFFFF"/>
+                <TextClock android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:format24Hour="EEE, d MMM yyyy" android:format12Hour="EEE, d MMM yyyy"
+                    android:textColor="#FFFFFF" android:textSize="18sp"/>
+                <TextView android:id="@+id/weatherText" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:layout_marginTop="10dp"
+                    android:text="Cuaca • Buka Settings untuk lokasi"
+                    android:textColor="#FFFFFF" android:textSize="17sp"/>
+                <Space android:layout_width="1dp" android:layout_height="0dp" android:layout_weight="1"/>
+                <GridLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:columnCount="3" android:rowCount="2">
+                    <Button android:id="@+id/dockApp1" style="@style/Widget.AppCompat.Button.Borderless"
+                        android:layout_width="95dp" android:layout_height="60dp" android:text="Netflix"
+                        android:textAllCaps="false" android:textColor="#FFFFFF"/>
+                    <Button android:id="@+id/dockApp2" style="@style/Widget.AppCompat.Button.Borderless"
+                        android:layout_width="95dp" android:layout_height="60dp" android:text="Music"
+                        android:textAllCaps="false" android:textColor="#FFFFFF"/>
+                    <Button android:id="@+id/dockApp3" style="@style/Widget.AppCompat.Button.Borderless"
+                        android:layout_width="95dp" android:layout_height="60dp" android:text="Radio"
+                        android:textAllCaps="false" android:textColor="#FFFFFF"/>
+                    <Button android:id="@+id/dockApp4" style="@style/Widget.AppCompat.Button.Borderless"
+                        android:layout_width="95dp" android:layout_height="60dp" android:text="YouTube"
+                        android:textAllCaps="false" android:textColor="#FFFFFF"/>
+                    <Button android:id="@+id/btnAllApps" style="@style/Widget.AppCompat.Button.Borderless"
+                        android:layout_width="95dp" android:layout_height="60dp" android:text="All Apps"
+                        android:textAllCaps="false" android:textColor="#FFFFFF"/>
+                    <Button android:id="@+id/btnSettings" style="@style/Widget.AppCompat.Button.Borderless"
+                        android:layout_width="95dp" android:layout_height="60dp" android:text="Settings"
+                        android:textAllCaps="false" android:textColor="#FFFFFF"/>
+                </GridLayout>
+            </LinearLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_height="match_parent"
+                android:layout_weight="1" android:gravity="right" android:orientation="vertical">
+                <LinearLayout android:layout_width="230dp" android:layout_height="0dp"
+                    android:layout_weight="1" android:background="@drawable/bg_frosted_glass"
+                    android:padding="14dp" android:orientation="vertical">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="☪  Waktu Solat" android:textSize="23sp" android:textStyle="bold"
+                        android:textColor="#FFFFFF"/>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="KULIM" android:textColor="#CCDDEEFF"/>
+                    <TextView android:id="@+id/prayerText" android:layout_width="match_parent"
+                        android:layout_height="0dp" android:layout_weight="1"
+                        android:gravity="center_vertical" android:text="Memuat waktu solat…"
+                        android:textSize="17sp" android:lineSpacingExtra="6dp"
+                        android:textColor="#FFFFFF"/>
+                    <Switch android:id="@+id/azanSwitch" android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="Azan &amp; Notifikasi"
+                        android:textColor="#FFFFFF" android:checked="false"/>
+                </LinearLayout>
+                <Space android:layout_width="1dp" android:layout_height="14dp"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="120dp"
+                    android:background="@drawable/bg_frosted_glass" android:padding="12dp"
+                    android:orientation="vertical">
+                    <TextView android:id="@+id/mediaTitle" android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="Tiada media dimainkan"
+                        android:textSize="16sp" android:textColor="#FFFFFF" android:singleLine="true"
+                        android:ellipsize="end"/>
+                    <TextView android:id="@+id/mediaArtist" android:layout_width="match_parent"
+                        android:layout_height="wrap_content" android:text="Buka aplikasi muzik"
+                        android:textSize="13sp" android:textColor="#CCFFFFFF"/>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp"
+                        android:layout_weight="1" android:gravity="center" android:orientation="horizontal">
+                        <Button android:id="@+id/mediaPrevious" android:layout_width="64dp"
+                            android:layout_height="48dp" android:text="◀◀"/>
+                        <Button android:id="@+id/mediaPlayPause" android:layout_width="64dp"
+                            android:layout_height="48dp" android:text="▶"/>
+                        <Button android:id="@+id/mediaNext" android:layout_width="64dp"
+                            android:layout_height="48dp" android:text="▶▶"/>
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-
-    <!-- BOTTOM DOCK -->
-    <LinearLayout
-        android:id="@+id/dockContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="85dp"
-        android:background="@drawable/bg_frosted_glass"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:paddingHorizontal="24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <ImageView
-            android:id="@+id/dockApp1"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginEnd="16dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_dialog_map"/>
-            
-        <ImageView
-            android:id="@+id/dockApp2"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginEnd="16dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_media_play"/>
-
-        <ImageView
-            android:id="@+id/dockApp3"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginEnd="16dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_call"/>
-
-        <ImageView
-            android:id="@+id/dockApp4"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginEnd="32dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_compass"/>
-
-        <!-- ALL APPS BUTTON -->
-        <ImageView
-            android:id="@+id/btnAllApps"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:tint="@color/mekxz_emerald"
-            android:src="@android:drawable/ic_menu_sort_by_size"/>
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>
