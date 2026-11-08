@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class AppsActivity extends AppCompatActivity {
 
@@ -37,27 +39,26 @@ public class AppsActivity extends AppCompatActivity {
     private void loadApps() {
         appList = new ArrayList<>();
         PackageManager pm = getPackageManager();
-        Intent i = new Intent(Intent.ACTION_MAIN, null);
-        i.addCategory(Intent.CATEGORY_LAUNCHER);
-
-        List<ResolveInfo> availableActivities = pm.queryIntentActivities(i, 0);
-        for (ResolveInfo ri : availableActivities) {
-            // Prevent launcher from showing itself in the drawer
-            if (ri.activityInfo.packageName.equals(getPackageName())) {
-                continue;
-            }
-            AppInfo app = new AppInfo(
-                    ri.loadLabel(pm),
-                    ri.activityInfo.packageName,
-                    ri.activityInfo.loadIcon(pm)
-            );
-            appList.add(app);
-        }
+        // Android head units can host both regular and Leanback-only apps.
+        // Merge both launcher categories while keeping one entry per package.
+        Map<String, AppInfo> uniqueApps = new LinkedHashMap<>();
+        collectApps(pm, Intent.CATEGORY_LAUNCHER, uniqueApps);
+        collectApps(pm, Intent.CATEGORY_LEANBACK_LAUNCHER, uniqueApps);
+        appList.addAll(uniqueApps.values());
 
         // Sort alphabetically
         Collections.sort(appList, (a, b) -> a.name.toString().compareToIgnoreCase(b.name.toString()));
 
         adapter = new AppAdapter(this, appList);
         rvApps.setAdapter(adapter);
+    }
+    private void collectApps(PackageManager pm, String category, Map<String, AppInfo> apps) {
+        Intent intent = new Intent(Intent.ACTION_MAIN).addCategory(category);
+        for (ResolveInfo ri : pm.queryIntentActivities(intent, 0)) {
+            if (ri.activityInfo == null) continue;
+            String pkg = ri.activityInfo.packageName;
+            if (pkg.equals(getPackageName()) || apps.containsKey(pkg)) continue;
+            apps.put(pkg, new AppInfo(ri.loadLabel(pm), pkg, ri.loadIcon(pm)));
+        }
     }
 }
