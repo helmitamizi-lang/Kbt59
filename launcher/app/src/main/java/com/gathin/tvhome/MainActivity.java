@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
             Azan.schedule(this, PrayerTimes.getJakimZone(this));
         });
         refreshPrayers();
+        Azan.fetch(this);
         PrayerTimes.syncIfDue(this, this::refreshPrayers);
         remote = new HeadUnitRemote(this);
         remote.start();
@@ -174,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showSettingsMenu() {
                 new AlertDialog.Builder(this).setTitle("MEKXZ DRIVE X")
-                .setItems(new String[]{"Tukar Wallpaper", "Android Settings", "Notification Access", "Safari Remote", "Susun App Dock", "Zon Waktu Solat", "Screensaver", "Theme Studio"}, (d, which) -> {
+                .setItems(new String[]{"Tukar Wallpaper", "Android Settings", "Notification Access", "Safari Remote", "Susun App Dock", "Zon Waktu Solat", "Screensaver", "Theme Studio", "Tetapan Azan"}, (d, which) -> {
                     if (which == 0) pickWallpaper();
                     if (which == 1) startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
                     if (which == 2) startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
@@ -182,10 +183,62 @@ public class MainActivity extends AppCompatActivity {
                     if (which == 5) choosePrayerZone();
                     if (which == 6) showNightstandScreensaver();
                     if (which == 7) showThemeStudio();
+                    if (which == 8) showAzanSettings();
                     if (which == 3) new AlertDialog.Builder(this).setTitle("Safari Remote")
                         .setMessage("Buka http://" + WallpaperUploadServer.getLocalIpAddress() + ":" + remote.getPort() + "\\nPIN: " + remote.getPin() + "\\nTelefon dan player mesti pada Wi-Fi sama.")
                         .setPositiveButton("OK", null).show();
                 }).show();
+    }
+
+    private void showAzanSettings() {
+        String[] options = {"Pilih suara azan", "Uji bunyi azan sekarang",
+                "Kebenaran alarm tepat", "Muat turun rakaman azan"};
+        new AlertDialog.Builder(this).setTitle("Tetapan Azan")
+            .setItems(options, (dialog, selected) -> {
+                if (selected == 0) chooseAzanSound();
+                if (selected == 1) {
+                    Intent intent = new Intent(this, AzanActivity.class);
+                    intent.putExtra("prayer", 4);
+                    startActivity(intent);
+                }
+                if (selected == 2) {
+                    if (android.os.Build.VERSION.SDK_INT >= 31) {
+                        android.app.AlarmManager alarm = getSystemService(android.app.AlarmManager.class);
+                        if (alarm != null && !alarm.canScheduleExactAlarms()) {
+                            try {
+                                startActivity(new Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                                        Uri.parse("package:" + getPackageName())));
+                            } catch (Exception e) {
+                                Toast.makeText(this, "Buka Settings > Apps > Special app access > Alarms", Toast.LENGTH_LONG).show();
+                            }
+                        } else {
+                            Toast.makeText(this, "Kebenaran alarm tepat sudah aktif", Toast.LENGTH_SHORT).show();
+                        }
+                    } else Toast.makeText(this, "Alarm disokong", Toast.LENGTH_SHORT).show();
+                }
+                if (selected == 3) {
+                    Azan.fetch(this);
+                    Toast.makeText(this, "Muat turun azan dimulakan. Internet diperlukan.", Toast.LENGTH_LONG).show();
+                }
+            }).show();
+    }
+
+    private void chooseAzanSound() {
+        String[] keys = {Azan.SOUND_MAKKAH, Azan.SOUND_MADINAH,
+                Azan.SOUND_KLCC, Azan.SOUND_CHIME, Azan.SOUND_SILENT};
+        String[] labels = new String[keys.length];
+        int selected = 0;
+        for (int i = 0; i < keys.length; i++) {
+            labels[i] = Azan.soundLabel(keys[i]);
+            if (keys[i].equals(Azan.getSoundChoice(this))) selected = i;
+        }
+        new AlertDialog.Builder(this).setTitle("Pilih Suara Azan")
+            .setSingleChoiceItems(labels, selected, (dialog, which) -> {
+                Azan.setSoundChoice(this, keys[which]);
+                Azan.fetch(this, keys[which]);
+                dialog.dismiss();
+                Toast.makeText(this, "Suara azan disimpan", Toast.LENGTH_SHORT).show();
+            }).setNegativeButton("Batal", null).show();
     }
 
     private void showThemeStudio() {
