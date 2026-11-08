@@ -119,10 +119,13 @@ public class MainActivity extends AppCompatActivity {
         bindApp(R.id.dockApp4, "com.google.android.youtube");
         findViewById(R.id.btnSettings).setOnClickListener(v ->
                 new AlertDialog.Builder(this).setTitle("MEKXZ DRIVE X")
-                .setItems(new String[]{"Tukar Wallpaper", "Android Settings", "Notification Access"}, (d, which) -> {
+                .setItems(new String[]{"Tukar Wallpaper", "Android Settings", "Notification Access", "Safari Remote"}, (d, which) -> {
                     if (which == 0) pickWallpaper();
                     if (which == 1) startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
                     if (which == 2) startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
+                    if (which == 3) new AlertDialog.Builder(this).setTitle("Safari Remote")
+                        .setMessage("Buka http://" + WallpaperUploadServer.getLocalIpAddress() + ":" + remote.getPort() + "\\nPIN: " + remote.getPin() + "\\nTelefon dan player mesti pada Wi-Fi sama.")
+                        .setPositiveButton("OK", null).show();
                 }).show());
     }
 
