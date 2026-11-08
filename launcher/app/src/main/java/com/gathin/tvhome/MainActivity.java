@@ -119,18 +119,65 @@ public class MainActivity extends AppCompatActivity {
         bindApp(R.id.dockApp4, "com.google.android.youtube");
         findViewById(R.id.btnSettings).setOnClickListener(v ->
                 new AlertDialog.Builder(this).setTitle("MEKXZ DRIVE X")
-                .setItems(new String[]{"Tukar Wallpaper", "Android Settings", "Notification Access", "Safari Remote"}, (d, which) -> {
+                .setItems(new String[]{"Tukar Wallpaper", "Android Settings", "Notification Access", "Safari Remote", "Susun App Dock"}, (d, which) -> {
                     if (which == 0) pickWallpaper();
                     if (which == 1) startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
                     if (which == 2) startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
+                    if (which == 4) chooseDockSlot();
                     if (which == 3) new AlertDialog.Builder(this).setTitle("Safari Remote")
                         .setMessage("Buka http://" + WallpaperUploadServer.getLocalIpAddress() + ":" + remote.getPort() + "\\nPIN: " + remote.getPin() + "\\nTelefon dan player mesti pada Wi-Fi sama.")
                         .setPositiveButton("OK", null).show();
                 }).show());
     }
 
-    private void bindApp(int id, String pkg) {
-        findViewById(id).setOnClickListener(v -> launchAppByPackage(pkg));
+    private final int[] dockIds = {R.id.dockApp1, R.id.dockApp2, R.id.dockApp3, R.id.dockApp4};
+    private final String[] dockLabels = {"Netflix", "Music", "Radio", "YouTube"};
+
+    private void bindApp(int id, String defaultPackage) {
+        String pkg = getSharedPreferences("dock", MODE_PRIVATE).getString("slot_" + id, defaultPackage);
+        View button = findViewById(id);
+        try {
+            CharSequence label = getPackageManager().getApplicationLabel(
+                getPackageManager().getApplicationInfo(pkg, 0));
+            if (button instanceof android.widget.Button) ((android.widget.Button)button).setText(label);
+        } catch (Exception ignored) {}
+        button.setOnClickListener(v -> launchAppByPackage(pkg));
+        button.setOnLongClickListener(v -> {
+            int slot = java.util.Arrays.binarySearch(dockIds, id);
+            chooseDockApp(slot >= 0 ? slot : 0);
+            return true;
+        });
+    }
+
+    private void chooseDockSlot() {
+        new AlertDialog.Builder(this).setTitle("Pilih slot dock")
+            .setItems(dockLabels, (dialog, slot) -> chooseDockApp(slot)).show();
+    }
+
+    private void chooseDockApp(int slot) {
+        android.content.pm.PackageManager pm = getPackageManager();
+        java.util.Map<String, String> choices = new java.util.TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        for (String category : new String[]{Intent.CATEGORY_LAUNCHER, Intent.CATEGORY_LEANBACK_LAUNCHER}) {
+            Intent query = new Intent(Intent.ACTION_MAIN).addCategory(category);
+            for (android.content.pm.ResolveInfo ri : pm.queryIntentActivities(query, 0)) {
+                if (ri.activityInfo != null && !ri.activityInfo.packageName.equals(getPackageName())) {
+                    choices.put(ri.loadLabel(pm).toString() + " (" + ri.activityInfo.packageName + ")",
+                        ri.activityInfo.packageName);
+                }
+            }
+        }
+        String[] names = choices.keySet().toArray(new String[0]);
+        if (names.length == 0) {
+            Toast.makeText(this, "Tiada aplikasi ditemui", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        new AlertDialog.Builder(this).setTitle("Pilih aplikasi")
+            .setItems(names, (dialog, selected) -> {
+                String pkg = choices.get(names[selected]);
+                getSharedPreferences("dock", MODE_PRIVATE).edit()
+                    .putString("slot_" + dockIds[slot], pkg).apply();
+                bindApp(dockIds[slot], pkg);
+            }).show();
     }
 
     private void launchAppByPackage(String pkg) {
