@@ -204,7 +204,9 @@ final class PrayerTimes {
         // Kedah & Perlis
         PRESET_ZONES.add(new PrayerZone("KDH01", "Kedah", "Kota Setar, Pokok Sena, Kubang Pasu", 6.1371, 100.3469));
         PRESET_ZONES.add(new PrayerZone("KDH02", "Kedah", "Kuala Muda, Yan, Pendang, Sungai Petani", 5.6297, 100.4677));
-        PRESET_ZONES.add(new PrayerZone("KDH07", "Kedah", "Pulau Langkawi", 6.3316, 99.8585));
+        PRESET_ZONES.add(new PrayerZone("KDH06", "Kedah", "Pulau Langkawi", 6.3316, 99.8585));
+        PRESET_ZONES.add(new PrayerZone("KDH05", "Kedah", "Kulim, Bandar Baharu", 5.365, 100.561));
+        PRESET_ZONES.add(new PrayerZone("KDH04", "Kedah", "Baling", 5.675, 100.917));
         PRESET_ZONES.add(new PrayerZone("PLS01", "Perlis", "Kangar, Padang Besar, Arau", 6.4299, 100.2109));
 
         // Pahang
@@ -336,9 +338,11 @@ final class PrayerTimes {
         if (loc.contains("pinang") || loc.contains("seberang") || loc.contains("minden")) return "PNG01";
         if (loc.contains("ipoh") || loc.contains("tasek") || loc.contains("taiping")) return "PRK02";
         if (loc.contains("manjung")) return "PRK01";
+        if (loc.contains("kulim") || loc.contains("padang serai") || loc.contains("lunas") || loc.contains("bandar baharu")) return "KDH05";
+        if (loc.contains("baling") || loc.contains("kuala ketil")) return "KDH04";
         if (loc.contains("alor setar")) return "KDH01";
         if (loc.contains("sungai petani")) return "KDH02";
-        if (loc.contains("langkawi")) return "KDH07";
+        if (loc.contains("langkawi")) return "KDH06";
         if (loc.contains("perlis") || loc.contains("kangar")) return "PLS01";
         if (loc.contains("kuantan")) return "PHG02";
         if (loc.contains("temerloh")) return "PHG04";
