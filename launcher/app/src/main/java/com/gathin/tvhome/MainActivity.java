@@ -59,6 +59,11 @@ public class MainActivity extends AppCompatActivity {
         hideSystemUI();
 
         setContentView(R.layout.activity_main);
+        if (!getSharedPreferences("mekxz", MODE_PRIVATE).getBoolean("prayer_zone_initialized", false)) {
+            if (!getSharedPreferences("prayer_times_cache", MODE_PRIVATE).contains("manual_prayer_zone"))
+                PrayerTimes.setZone(this, "KDH05", "Kulim, Bandar Baharu", 5.365, 100.561);
+            getSharedPreferences("mekxz", MODE_PRIVATE).edit().putBoolean("prayer_zone_initialized", true).apply();
+        }
         setupDock();
         loadWallpaper();
         setupMedia();
@@ -136,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
             int m = day.minutes[index];
             text.append(PrayerTimes.NAMES[index]).append("     ")
                 .append(String.format(java.util.Locale.US, "%02d:%02d", m / 60, m % 60))
-                .append("\\n");
+                .append("\n");
         }
         prayer.setText(text.toString().trim());
         Azan.schedule(this, PrayerTimes.getJakimZone(this));
@@ -168,15 +173,30 @@ public class MainActivity extends AppCompatActivity {
 
     private void showSettingsMenu() {
                 new AlertDialog.Builder(this).setTitle("MEKXZ DRIVE X")
-                .setItems(new String[]{"Tukar Wallpaper", "Android Settings", "Notification Access", "Safari Remote", "Susun App Dock"}, (d, which) -> {
+                .setItems(new String[]{"Tukar Wallpaper", "Android Settings", "Notification Access", "Safari Remote", "Susun App Dock", "Zon Waktu Solat"}, (d, which) -> {
                     if (which == 0) pickWallpaper();
                     if (which == 1) startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
                     if (which == 2) startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
                     if (which == 4) chooseDockSlot();
+                    if (which == 5) choosePrayerZone();
                     if (which == 3) new AlertDialog.Builder(this).setTitle("Safari Remote")
                         .setMessage("Buka http://" + WallpaperUploadServer.getLocalIpAddress() + ":" + remote.getPort() + "\\nPIN: " + remote.getPin() + "\\nTelefon dan player mesti pada Wi-Fi sama.")
                         .setPositiveButton("OK", null).show();
                 }).show();
+    }
+
+    private void choosePrayerZone() {
+        java.util.List<PrayerTimes.PrayerZone> zones = PrayerTimes.getPresetZones();
+        String[] names = new String[zones.size()];
+        for (int i = 0; i < zones.size(); i++) names[i] = zones.get(i).getDisplayName();
+        new AlertDialog.Builder(this).setTitle("Zon Waktu Solat")
+            .setItems(names, (dialog, selected) -> {
+                PrayerTimes.PrayerZone zone = zones.get(selected);
+                PrayerTimes.setZone(this, zone.code, zone.name, zone.lat, zone.lon);
+                ((TextView)findViewById(R.id.prayerText)).setText("Memuat waktu solat…");
+                PrayerTimes.sync(this, this::refreshPrayers);
+                refreshPrayers();
+            }).show();
     }
 
     private final int[] dockIds = {R.id.dockApp1, R.id.dockApp2, R.id.dockApp3, R.id.dockApp4};
