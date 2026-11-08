@@ -6,12 +6,24 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Switch;
+import android.widget.Toast;
+import android.app.AlertDialog;
+import android.net.Uri;
+import android.graphics.BitmapFactory;
+import android.graphics.Bitmap;
+import android.media.session.MediaController;
+import android.content.SharedPreferences;
+import java.io.InputStream;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
     private static MainActivity sInstance;
-    private ImageView btnAllApps;
+    private View btnAllApps;
+    private static final int PICK_WALLPAPER = 501;
+    private TextView mediaTitle, mediaArtist;
     public String testWeatherOverride = null;
 
     public static MainActivity getInstance() {
@@ -39,6 +51,12 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
         setupDock();
+        loadWallpaper();
+        setupMedia();
+        TextView prayer = findViewById(R.id.prayerText);
+        prayer.setText("Waktu solat belum disambungkan\\nSila semak jadual dalam Settings");
+        Switch azan = findViewById(R.id.azanSwitch);
+        azan.setEnabled(false); // Avoid pretending azan scheduling is active.
     }
 
     @Override
@@ -51,27 +69,92 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupDock() {
         btnAllApps = findViewById(R.id.btnAllApps);
-        if (btnAllApps != null) {
-            btnAllApps.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, AppsActivity.class);
-                startActivity(intent);
-            });
-        }
+        btnAllApps.setOnClickListener(v -> startActivity(new Intent(this, AppsActivity.class)));
+        bindApp(R.id.dockApp1, "com.netflix.mediaclient");
+        bindApp(R.id.dockApp2, "com.spotify.music");
+        bindApp(R.id.dockApp3, "com.android.fmradio");
+        bindApp(R.id.dockApp4, "com.google.android.youtube");
+        findViewById(R.id.btnSettings).setOnClickListener(v ->
+                new AlertDialog.Builder(this).setTitle("MEKXZ DRIVE X")
+                .setItems(new String[]{"Tukar Wallpaper", "Android Settings", "Notification Access"}, (d, which) -> {
+                    if (which == 0) pickWallpaper();
+                    if (which == 1) startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
+                    if (which == 2) startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
+                }).show());
+    }
 
-        View dock1 = findViewById(R.id.dockApp1);
-        if (dock1 != null) {
-            dock1.setOnClickListener(v -> launchAppByPackage("com.google.android.apps.maps"));
+    private void bindApp(int id, String pkg) {
+        findViewById(id).setOnClickListener(v -> launchAppByPackage(pkg));
+    }
+
+    private void launchAppByPackage(String pkg) {
+        Intent launch = getPackageManager().getLaunchIntentForPackage(pkg);
+        if (launch == null) {
+            Toast.makeText(this, "Aplikasi belum dipasang: " + pkg, Toast.LENGTH_SHORT).show();
+            return;
         }
-        View dock2 = findViewById(R.id.dockApp2);
-        if (dock2 != null) {
-            dock2.setOnClickListener(v -> launchAppByPackage("com.spotify.music"));
+        try { startActivity(launch); }
+        catch (Exception e) { Toast.makeText(this, "Tidak dapat buka aplikasi", Toast.LENGTH_SHORT).show(); }
+    }
+
+    private void pickWallpaper() {
+        Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        i.setType("image/*");
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        startActivityForResult(i, PICK_WALLPAPER);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_WALLPAPER && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri uri = data.getData();
+            try {
+                getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                getSharedPreferences("mekxz", MODE_PRIVATE).edit().putString("wallpaper", uri.toString()).apply();
+                loadWallpaper();
+            } catch (Exception e) {
+                Toast.makeText(this, "Wallpaper tidak dapat dibaca", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
-    private void launchAppByPackage(String packageName) {
-        Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packageName);
-        if (launchIntent != null) {
-            startActivity(launchIntent);
+    private void loadWallpaper() {
+        ImageView view = findViewById(R.id.homeWallpaper);
+        String uri = getSharedPreferences("mekxz", MODE_PRIVATE).getString("wallpaper", "");
+        if (uri.isEmpty()) return;
+        try (InputStream in = getContentResolver().openInputStream(Uri.parse(uri))) {
+            Bitmap bitmap = BitmapFactory.decodeStream(in);
+            if (bitmap != null) view.setImageBitmap(bitmap);
+        } catch (Exception ignored) { }
+    }
+
+    private void setupMedia() {
+        mediaTitle = findViewById(R.id.mediaTitle);
+        mediaArtist = findViewById(R.id.mediaArtist);
+        NowPlayingManager.init(this);
+        NowPlayingManager.registerListener(info -> runOnUiThread(() -> {
+            mediaTitle.setText(info.title.isEmpty() ? "Tiada media dimainkan" : info.title);
+            mediaArtist.setText(info.artist.isEmpty() ? "Buka aplikasi muzik" : info.artist);
+            ((android.widget.Button)findViewById(R.id.mediaPlayPause)).setText(info.isPlaying ? "Ⅱ" : "▶");
+        }));
+        findViewById(R.id.mediaPrevious).setOnClickListener(v -> mediaAction(0));
+        findViewById(R.id.mediaPlayPause).setOnClickListener(v -> mediaAction(1));
+        findViewById(R.id.mediaNext).setOnClickListener(v -> mediaAction(2));
+    }
+
+    private void mediaAction(int action) {
+        MediaController controller = NowPlayingManager.getCurrentInfo().controller;
+        if (controller == null) {
+            Toast.makeText(this, "Benarkan Notification Access untuk kawalan muzik", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (action == 0) controller.getTransportControls().skipToPrevious();
+        if (action == 2) controller.getTransportControls().skipToNext();
+        if (action == 1) {
+            if (NowPlayingManager.getCurrentInfo().isPlaying) controller.getTransportControls().pause();
+            else controller.getTransportControls().play();
         }
     }
 
