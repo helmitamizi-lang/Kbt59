@@ -366,7 +366,7 @@ public class MainActivity extends AppCompatActivity {
         NowPlayingManager.registerListener(info -> runOnUiThread(() -> {
             mediaTitle.setText(info.title.isEmpty() ? "Tiada media dimainkan" : info.title);
             mediaArtist.setText(info.artist.isEmpty() ? "Buka aplikasi muzik" : info.artist);
-            ((android.widget.Button)findViewById(R.id.mediaPlayPause)).setText(info.isPlaying ? "Ⅱ" : "▶");
+            ((android.widget.ImageButton)findViewById(R.id.mediaPlayPause)).setImageResource(info.isPlaying ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play);
         }));
         findViewById(R.id.mediaPrevious).setOnClickListener(v -> mediaAction(0));
         findViewById(R.id.mediaPlayPause).setOnClickListener(v -> mediaAction(1));
