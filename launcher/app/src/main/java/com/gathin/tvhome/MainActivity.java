@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         setupDock();
         loadWallpaper();
         setupMedia();
+        refreshWeather();
         TextView prayer = findViewById(R.id.prayerText);
         prayer.setText("Memuat waktu solat…");
         Switch azan = findViewById(R.id.azanSwitch);
@@ -75,6 +76,41 @@ public class MainActivity extends AppCompatActivity {
         if (sInstance == this) {
             sInstance = null;
         }
+    }
+
+    private void refreshWeather() {
+        TextView weather = findViewById(R.id.weatherText);
+        weather.setText("Memuat cuaca Kulim…");
+        new Thread(() -> {
+            java.net.HttpURLConnection connection = null;
+            try {
+                java.net.URL url = new java.net.URL(
+                    "https://api.open-meteo.com/v1/forecast?latitude=5.365&longitude=100.561&current=temperature_2m,relative_humidity_2m,weather_code&timezone=Asia%2FKuala_Lumpur");
+                connection = (java.net.HttpURLConnection) url.openConnection();
+                connection.setConnectTimeout(7000);
+                connection.setReadTimeout(7000);
+                if (connection.getResponseCode() != 200) throw new java.io.IOException("HTTP " + connection.getResponseCode());
+                StringBuilder json = new StringBuilder();
+                try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(connection.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) json.append(line);
+                }
+                org.json.JSONObject current = new org.json.JSONObject(json.toString()).getJSONObject("current");
+                double temp = current.getDouble("temperature_2m");
+                int humidity = current.getInt("relative_humidity_2m");
+                int code = current.getInt("weather_code");
+                String condition = code == 0 ? "Cerah" : code <= 3 ? "Berawan" :
+                        code <= 48 ? "Berkabus" : code <= 67 ? "Hujan" :
+                        code <= 77 ? "Salji" : code <= 82 ? "Hujan" : "Ribut";
+                String display = String.format(java.util.Locale.US, "Kulim  %.1f°C  •  %s  •  %d%% lembap", temp, condition, humidity);
+                runOnUiThread(() -> weather.setText(display));
+            } catch (Exception e) {
+                runOnUiThread(() -> weather.setText("Cuaca tidak tersedia • Semak internet"));
+            } finally {
+                if (connection != null) connection.disconnect();
+            }
+        }, "mekxz-weather").start();
     }
 
     private void refreshPrayers() {
