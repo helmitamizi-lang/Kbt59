@@ -25,6 +25,16 @@ public class MainActivity extends AppCompatActivity {
     private static final int PICK_WALLPAPER = 501;
     private TextView mediaTitle, mediaArtist;
     private HeadUnitRemote remote;
+    private android.os.Handler refreshHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable refreshTask = new Runnable() {
+        @Override public void run() {
+            if (!isFinishing() && !isDestroyed()) {
+                refreshPrayers();
+                refreshWeather();
+                refreshHandler.postDelayed(this, 30 * 60 * 1000L);
+            }
+        }
+    };
     public String testWeatherOverride = null;
 
     public static MainActivity getInstance() {
@@ -36,9 +46,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static void openSettingsFromGlobal() {
-        if (sInstance != null) {
-            // Open settings layout or dialog
-        }
+        if (sInstance != null) sInstance.runOnUiThread(() -> sInstance.showSettingsMenu());
     }
 
     @Override
@@ -67,10 +75,12 @@ public class MainActivity extends AppCompatActivity {
         PrayerTimes.syncIfDue(this, this::refreshPrayers);
         remote = new HeadUnitRemote(this);
         remote.start();
+        refreshHandler.postDelayed(refreshTask, 30 * 60 * 1000L);
     }
 
     @Override
     protected void onDestroy() {
+        refreshHandler.removeCallbacks(refreshTask);
         if (remote != null) remote.stop();
         super.onDestroy();
         if (sInstance == this) {
@@ -153,7 +163,10 @@ public class MainActivity extends AppCompatActivity {
         bindApp(R.id.dockApp2, "com.spotify.music");
         bindApp(R.id.dockApp3, "com.android.fmradio");
         bindApp(R.id.dockApp4, "com.google.android.youtube");
-        findViewById(R.id.btnSettings).setOnClickListener(v ->
+        findViewById(R.id.btnSettings).setOnClickListener(v -> showSettingsMenu());
+    }
+
+    private void showSettingsMenu() {
                 new AlertDialog.Builder(this).setTitle("MEKXZ DRIVE X")
                 .setItems(new String[]{"Tukar Wallpaper", "Android Settings", "Notification Access", "Safari Remote", "Susun App Dock"}, (d, which) -> {
                     if (which == 0) pickWallpaper();
@@ -163,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
                     if (which == 3) new AlertDialog.Builder(this).setTitle("Safari Remote")
                         .setMessage("Buka http://" + WallpaperUploadServer.getLocalIpAddress() + ":" + remote.getPort() + "\\nPIN: " + remote.getPin() + "\\nTelefon dan player mesti pada Wi-Fi sama.")
                         .setPositiveButton("OK", null).show();
-                }).show());
+                }).show();
     }
 
     private final int[] dockIds = {R.id.dockApp1, R.id.dockApp2, R.id.dockApp3, R.id.dockApp4};
@@ -285,6 +298,13 @@ public class MainActivity extends AppCompatActivity {
             if (NowPlayingManager.getCurrentInfo().isPlaying) controller.getTransportControls().pause();
             else controller.getTransportControls().play();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        hideSystemUI();
+        refreshPrayers();
     }
 
     private void hideSystemUI() {
