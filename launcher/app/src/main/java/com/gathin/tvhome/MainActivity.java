@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
         }
         setupDock();
         loadWallpaper();
+        applyThemeStudio();
         setupMedia();
         refreshWeather();
         TextView prayer = findViewById(R.id.prayerText);
@@ -173,17 +174,62 @@ public class MainActivity extends AppCompatActivity {
 
     private void showSettingsMenu() {
                 new AlertDialog.Builder(this).setTitle("MEKXZ DRIVE X")
-                .setItems(new String[]{"Tukar Wallpaper", "Android Settings", "Notification Access", "Safari Remote", "Susun App Dock", "Zon Waktu Solat", "Screensaver"}, (d, which) -> {
+                .setItems(new String[]{"Tukar Wallpaper", "Android Settings", "Notification Access", "Safari Remote", "Susun App Dock", "Zon Waktu Solat", "Screensaver", "Theme Studio"}, (d, which) -> {
                     if (which == 0) pickWallpaper();
                     if (which == 1) startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
                     if (which == 2) startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
                     if (which == 4) chooseDockSlot();
                     if (which == 5) choosePrayerZone();
                     if (which == 6) showNightstandScreensaver();
+                    if (which == 7) showThemeStudio();
                     if (which == 3) new AlertDialog.Builder(this).setTitle("Safari Remote")
                         .setMessage("Buka http://" + WallpaperUploadServer.getLocalIpAddress() + ":" + remote.getPort() + "\\nPIN: " + remote.getPin() + "\\nTelefon dan player mesti pada Wi-Fi sama.")
                         .setPositiveButton("OK", null).show();
                 }).show();
+    }
+
+    private void showThemeStudio() {
+        String[] options = {"Midnight Blue", "Graphite", "Emerald", "Amber", "Laraskan kelegapan glass"};
+        new AlertDialog.Builder(this).setTitle("MEKXZ Theme Studio")
+            .setItems(options, (dialog, selected) -> {
+                if (selected == 4) { chooseGlassOpacity(); return; }
+                getSharedPreferences("theme_studio", MODE_PRIVATE).edit().putInt("accent", selected).apply();
+                applyThemeStudio();
+            }).show();
+    }
+
+    private void chooseGlassOpacity() {
+        android.widget.SeekBar slider = new android.widget.SeekBar(this);
+        slider.setMax(90);
+        slider.setProgress(getSharedPreferences("theme_studio", MODE_PRIVATE).getInt("opacity", 65));
+        new AlertDialog.Builder(this).setTitle("Kelegapan glass")
+            .setView(slider).setPositiveButton("Simpan", (d, w) -> {
+                getSharedPreferences("theme_studio", MODE_PRIVATE).edit()
+                    .putInt("opacity", Math.max(15, slider.getProgress())).apply();
+                applyThemeStudio();
+            }).setNegativeButton("Batal", null).show();
+    }
+
+    private void applyThemeStudio() {
+        SharedPreferences prefs = getSharedPreferences("theme_studio", MODE_PRIVATE);
+        int selection = prefs.getInt("accent", 0);
+        int[] rgb = {0x10253C, 0x272A31, 0x123A35, 0x4A321A};
+        int base = rgb[Math.max(0, Math.min(selection, rgb.length - 1))];
+        int alpha = (int)(255 * prefs.getInt("opacity", 65) / 100.0);
+        int color = (alpha << 24) | base;
+        for (int id : new int[]{R.id.prayerText, R.id.weatherText, R.id.mediaTitle,
+                R.id.mediaArtist}) {
+            View v = findViewById(id);
+            if (v != null) {
+                android.graphics.drawable.GradientDrawable bg = new android.graphics.drawable.GradientDrawable();
+                bg.setColor(color);
+                bg.setCornerRadius(18 * getResources().getDisplayMetrics().density);
+                bg.setStroke(1, 0x44FFFFFF);
+                v.setBackground(bg);
+                int pad = (int)(8 * getResources().getDisplayMetrics().density);
+                v.setPadding(pad, pad, pad, pad);
+            }
+        }
     }
 
     private void choosePrayerZone() {
