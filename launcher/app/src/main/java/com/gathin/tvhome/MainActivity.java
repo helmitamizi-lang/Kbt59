@@ -255,12 +255,32 @@ public class MainActivity extends AppCompatActivity {
         try {
             CharSequence label = getPackageManager().getApplicationLabel(
                 getPackageManager().getApplicationInfo(pkg, 0));
-            if (button instanceof android.widget.Button) ((android.widget.Button)button).setText(label);
-        } catch (Exception ignored) {}
+            if (button instanceof android.widget.Button) {
+                android.widget.Button dockButton = (android.widget.Button) button;
+                dockButton.setText(label);
+                android.graphics.drawable.Drawable appIcon = getPackageManager().getApplicationIcon(pkg);
+                int size = (int)(30 * getResources().getDisplayMetrics().density);
+                appIcon.setBounds(0, 0, size, size);
+                dockButton.setCompoundDrawables(null, appIcon, null, null);
+                dockButton.setCompoundDrawablePadding((int)(3 * getResources().getDisplayMetrics().density));
+                dockButton.setGravity(android.view.Gravity.CENTER);
+                dockButton.setTextSize(11);
+                dockButton.setAllCaps(false);
+                dockButton.setSingleLine(true);
+                dockButton.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            }
+        } catch (Exception ignored) {
+            if (button instanceof android.widget.Button) {
+                android.widget.Button dockButton = (android.widget.Button) button;
+                dockButton.setText("Pilih App");
+                dockButton.setCompoundDrawables(null, null, null, null);
+            }
+        }
         button.setOnClickListener(v -> launchAppByPackage(pkg));
         button.setOnLongClickListener(v -> {
-            int slot = java.util.Arrays.binarySearch(dockIds, id);
-            chooseDockApp(slot >= 0 ? slot : 0);
+            int slot = 0;
+            for (int i = 0; i < dockIds.length; i++) if (dockIds[i] == id) { slot = i; break; }
+            chooseDockApp(slot);
             return true;
         });
     }
