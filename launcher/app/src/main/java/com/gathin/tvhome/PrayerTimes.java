@@ -314,7 +314,7 @@ final class PrayerTimes {
         sync(context, null);
     }
 
-    private static String getJakimZone(Context context) {
+    static String getJakimZone(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         if (prefs.contains("manual_prayer_zone")) {
             return prefs.getString("manual_prayer_zone", "WLY01");
