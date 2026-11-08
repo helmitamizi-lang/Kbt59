@@ -173,12 +173,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void showSettingsMenu() {
                 new AlertDialog.Builder(this).setTitle("MEKXZ DRIVE X")
-                .setItems(new String[]{"Tukar Wallpaper", "Android Settings", "Notification Access", "Safari Remote", "Susun App Dock", "Zon Waktu Solat"}, (d, which) -> {
+                .setItems(new String[]{"Tukar Wallpaper", "Android Settings", "Notification Access", "Safari Remote", "Susun App Dock", "Zon Waktu Solat", "Screensaver"}, (d, which) -> {
                     if (which == 0) pickWallpaper();
                     if (which == 1) startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
                     if (which == 2) startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
                     if (which == 4) chooseDockSlot();
                     if (which == 5) choosePrayerZone();
+                    if (which == 6) showNightstandScreensaver();
                     if (which == 3) new AlertDialog.Builder(this).setTitle("Safari Remote")
                         .setMessage("Buka http://" + WallpaperUploadServer.getLocalIpAddress() + ":" + remote.getPort() + "\\nPIN: " + remote.getPin() + "\\nTelefon dan player mesti pada Wi-Fi sama.")
                         .setPositiveButton("OK", null).show();
@@ -363,7 +364,51 @@ public class MainActivity extends AppCompatActivity {
     public void showWallpaperIntervalDialog() {}
     public void showLanguageDialog() {}
     public void updateWeatherOverlay(Object line) {}
-    public void showNightstandScreensaver() {}
+    public void showNightstandScreensaver() {
+        final android.app.Dialog dialog = new android.app.Dialog(this);
+        android.widget.FrameLayout root = new android.widget.FrameLayout(this);
+        root.setBackgroundColor(android.graphics.Color.rgb(4, 9, 17));
+        android.widget.LinearLayout content = new android.widget.LinearLayout(this);
+        content.setOrientation(android.widget.LinearLayout.VERTICAL);
+        content.setGravity(android.view.Gravity.CENTER);
+        android.widget.TextClock clock = new android.widget.TextClock(this);
+        clock.setFormat24Hour("HH:mm");
+        clock.setFormat12Hour("hh:mm");
+        clock.setTextSize(96);
+        clock.setTextColor(android.graphics.Color.WHITE);
+        clock.setGravity(android.view.Gravity.CENTER);
+        android.widget.TextClock date = new android.widget.TextClock(this);
+        date.setFormat24Hour("EEEE, d MMMM yyyy");
+        date.setFormat12Hour("EEEE, d MMMM yyyy");
+        date.setTextSize(24);
+        date.setTextColor(android.graphics.Color.LTGRAY);
+        date.setGravity(android.view.Gravity.CENTER);
+        android.widget.TextView hint = new android.widget.TextView(this);
+        hint.setText("Sentuh skrin untuk kembali");
+        hint.setTextColor(android.graphics.Color.GRAY);
+        hint.setTextSize(14);
+        hint.setGravity(android.view.Gravity.CENTER);
+        content.addView(clock);
+        content.addView(date);
+        content.addView(hint);
+        root.addView(content, new android.widget.FrameLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT));
+        root.setOnClickListener(v -> dialog.dismiss());
+        dialog.setContentView(root);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT);
+            dialog.getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                    View.SYSTEM_UI_FLAG_FULLSCREEN);
+        }
+        dialog.show();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT);
+        }
+    }
     public void showRestartDialog() {}
     public void showTurnOffDialog() {}
     public String getAppVersionName() { return "2.0-MEKXZ"; }
